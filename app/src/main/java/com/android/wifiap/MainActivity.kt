@@ -11,8 +11,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.android.wifiap.other.SoftApCallback
+import com.android.wifiap.other.isWifiApEnabled
 import com.android.wifiap.other.startTethering
 import com.android.wifiap.other.stopTethering
 import com.android.wifiap.ui.theme.WIFIAPTheme
@@ -37,16 +45,27 @@ class MainActivity : ComponentActivity() {
 fun Greeting() {
     val context = LocalContext.current
     val activity = (context as Activity)
+    val scope = rememberCoroutineScope()
+    var isWifiApEnabled by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        isWifiApEnabled = isWifiApEnabled(context)
+    }
     Column {
         Button(onClick = {
-            startTethering(context)
+            if (isWifiApEnabled) {
+                startTethering(context)
+            } else {
+                stopTethering(context)
+            }
+
         }) {
-            Text(text = "开启热点")
+            Text(text = if (isWifiApEnabled) "关闭热点" else "开启热点")
         }
         Button(onClick = {
-            stopTethering(context)
+//            setAP(context)
+            SoftApCallback.test(context)
         }) {
-            Text(text = "关闭热点")
+            Text(text = "获取AP信息")
         }
     }
 }
