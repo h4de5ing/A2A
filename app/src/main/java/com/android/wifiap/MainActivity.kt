@@ -13,7 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.android.wifiap.other.WifiHelper
+import com.android.wifiap.other.startTethering
+import com.android.wifiap.other.stopTethering
 import com.android.wifiap.ui.theme.WIFIAPTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,8 +24,7 @@ class MainActivity : ComponentActivity() {
             WIFIAPTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     Greeting()
                 }
@@ -39,12 +39,12 @@ fun Greeting() {
     val activity = (context as Activity)
     Column {
         Button(onClick = {
-            WifiHelper.getInstance(context).openAp(activity, "T__", "123456789")
+            startTethering(context)
         }) {
             Text(text = "开启热点")
         }
         Button(onClick = {
-            WifiHelper.getInstance(context).closeAp(activity)
+            stopTethering(context)
         }) {
             Text(text = "关闭热点")
         }

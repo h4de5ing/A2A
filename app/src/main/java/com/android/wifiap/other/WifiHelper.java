@@ -26,7 +26,6 @@ import androidx.core.content.ContextCompat;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -277,9 +276,7 @@ public class WifiHelper {
             }
         }
         String ssid = getWifiManager().getConnectionInfo().getSSID();
-        if (TextUtils.isEmpty(ssid)) {
-            return "";
-        }
+        if (TextUtils.isEmpty(ssid)) return "";
         if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
             return ssid.subSequence(1, ssid.length() - 1).toString();
         }
@@ -325,16 +322,14 @@ public class WifiHelper {
     @SuppressLint("WrongConstant")
     private void startTethering() {
         try {
-            Executor executor = command -> {
-            };
-            TetheringManager.StartTetheringCallback callback = new TetheringManager.StartTetheringCallback() {
+            TetheringManager tm = (TetheringManager) mContext.getSystemService("tethering");
+            tm.startTethering(0, command -> {
+            }, new TetheringManager.StartTetheringCallback() {
                 @Override
                 public void onTetheringStarted() {
 
                 }
-            };
-            TetheringManager obj = (TetheringManager) mContext.getSystemService("tethering");
-            obj.startTethering(0, executor, callback);
+            });
         } catch (Exception e) {
             Log.e(TAG, "打开热点失败");
             e.printStackTrace();
