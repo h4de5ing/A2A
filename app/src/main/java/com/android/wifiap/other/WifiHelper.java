@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.DhcpInfo;
+import android.net.TetheringManager;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
@@ -25,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -320,19 +322,19 @@ public class WifiHelper {
     /**
      * android8.0以上开启手机热点
      */
+    @SuppressLint("WrongConstant")
     private void startTethering() {
         try {
-            Class classOnStartTetheringCallback = Class.forName("android.net.ConnectivityManager$OnStartTetheringCallback");
-            Method startTethering = getConnectivityManager().getClass().getDeclaredMethod("startTethering", int.class, boolean.class, classOnStartTetheringCallback);
-            /*Object proxy = ProxyBuilder.forClass(classOnStartTetheringCallback)
-                    .handler(new InvocationHandler() {
-                        @Override
-                        public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-                            return null;
-                        }
-                    }).build();*/
-            Object proxy = null;
-            startTethering.invoke(getConnectivityManager(), 0, false, proxy);
+            Executor executor = command -> {
+            };
+            TetheringManager.StartTetheringCallback callback = new TetheringManager.StartTetheringCallback() {
+                @Override
+                public void onTetheringStarted() {
+
+                }
+            };
+            TetheringManager obj = (TetheringManager) mContext.getSystemService("tethering");
+            obj.startTethering(0, executor, callback);
         } catch (Exception e) {
             Log.e(TAG, "打开热点失败");
             e.printStackTrace();
