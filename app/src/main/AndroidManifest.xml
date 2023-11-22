@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:sharedUserId="android.uid.system">
 
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.TETHER_PRIVILEGED" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

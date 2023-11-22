@@ -1,5 +1,6 @@
 package com.android.wifiap
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.android.wifiap.other.WifiHelper
+import com.android.wifiap.other.setAP
 import com.android.wifiap.ui.theme.WIFIAPTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,8 +36,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting() {
+    val context = LocalContext.current
+    val activity=(context as Activity)
     Column {
         Button(onClick = {
+//            setAP(context)
+            WifiHelper.getInstance(context).openAp(activity,"T__","123456789")
         }) {
             Text(text = "开启热点")
         }
