@@ -1,5 +1,6 @@
 package com.android.wifiap.other;
 
+
 import android.content.Context;
 import android.net.wifi.SoftApCapability;
 import android.net.wifi.SoftApInfo;
@@ -16,17 +17,15 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 public class SoftApCallback {
-    public static void test(Context context) {
+
+    public static void registerSoftApCallback(Context context) {
         try {
             WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            if (wifiManager.getWifiState() == 13) {
-
-            }
             Class<?> callbackClass = Class.forName("android.net.wifi.WifiManager$SoftApCallback");
             Object callback = Proxy.newProxyInstance(callbackClass.getClassLoader(), new Class<?>[]{callbackClass}, new InvocationHandler() {
                 @Override
                 public Object invoke(Object proxy, Method method, Object[] args) {
-//                            System.out.println("实现接口方法逻辑 " + method.getName());
+                    System.out.println("实现接口方法逻辑 " + method.getName());
                     switch (method.getName()) {
                         case "onStateChanged":
                             int state = (int) args[0];
@@ -36,19 +35,19 @@ public class SoftApCallback {
 
                         case "onConnectedClientsChanged":
                             List<WifiClient> clients = (List<WifiClient>) args[0];
-                            System.out.println("onConnectedClientsChanged =" + clients.size());
+                            System.out.println("onConnectedClientsChanged = " + clients.size());
                             break;
 
                         case "onInfoChanged":
                             if (args[0] instanceof SoftApInfo) {
                                 SoftApInfo softApInfo = (SoftApInfo) args[0];
-                                System.out.println("onInfoChanged =" + softApInfo.toString());
+                                System.out.println("onInfoChanged = " + softApInfo.toString());
                             }
                             break;
                         case "onCapabilityChanged":
                             if (args[0] instanceof SoftApCapability) {
                                 SoftApCapability softApCapability = (SoftApCapability) args[0];
-                                System.out.println("onCapabilityChanged =" + softApCapability.toString());
+                                System.out.println("onCapabilityChanged = " + softApCapability.toString());
                             }
                             break;
                         case "onBlockedClientConnecting":

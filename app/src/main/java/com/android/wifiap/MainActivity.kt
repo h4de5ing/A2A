@@ -1,6 +1,7 @@
 package com.android.wifiap
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -49,21 +50,21 @@ fun Greeting() {
     var isWifiApEnabled by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         isWifiApEnabled = isWifiApEnabled(context)
+        println("wifi状态:${isWifiApEnabled}")
     }
     Column {
         Button(onClick = {
-            if (isWifiApEnabled) {
-                startTethering(context)
-            } else {
-                stopTethering(context)
-            }
-
+            startTethering(context)
         }) {
-            Text(text = if (isWifiApEnabled) "关闭热点" else "开启热点")
+            Text(text = "开启热点")
         }
         Button(onClick = {
-//            setAP(context)
-            SoftApCallback.test(context)
+            stopTethering(context)
+        }) {
+            Text(text = "关闭热点")
+        }
+        Button(onClick = {
+            SoftApCallback.registerSoftApCallback(context)
         }) {
             Text(text = "获取AP信息")
         }
