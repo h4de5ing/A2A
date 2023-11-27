@@ -23,7 +23,7 @@
         android:theme="@style/Theme.WIFIAP"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity2"
+            android:name=".USBP2PActivity"
             android:exported="true"
             android:theme="@style/Theme.WIFIAP">
             <intent-filter>

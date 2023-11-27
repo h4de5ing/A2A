@@ -53,20 +53,21 @@ fun Greeting() {
         println("wifi状态:${isWifiApEnabled}")
     }
     Column {
-        Button(onClick = {
-            startTethering(context)
-        }) {
-            Text(text = "开启热点")
-        }
-        Button(onClick = {
-            stopTethering(context)
-        }) {
-            Text(text = "关闭热点")
-        }
-        Button(onClick = {
-            SoftApCallback.registerSoftApCallback(context)
-        }) {
-            Text(text = "获取AP信息")
-        }
+//        Button(onClick = {
+//            startTethering(context)
+//        }) {
+//            Text(text = "开启热点")
+//        }
+//        Button(onClick = {
+//            stopTethering(context)
+//        }) {
+//            Text(text = "关闭热点")
+//        }
+//        Button(onClick = {
+//            SoftApCallback.registerSoftApCallback(context)
+//        }) {
+//            Text(text = "获取AP信息")
+//        }
+        Text(text = "")
     }
 }

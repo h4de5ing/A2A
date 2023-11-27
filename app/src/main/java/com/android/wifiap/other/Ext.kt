@@ -2,6 +2,7 @@ package com.android.wifiap.other
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.hardware.usb.UsbManager
 import android.net.ConnectivityManager
 import android.net.TetheringManager
 import android.net.wifi.WifiManager
@@ -28,4 +29,14 @@ fun stopTethering(context: Context) {
     } catch (e: Exception) {
         e.printStackTrace()
     }
+}
+
+fun isUsbHost(context: Context) {
+    val manager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+    val deviceList = manager.deviceList
+    val device = deviceList["deviceName"]
+}
+
+fun isUsbAccessory() {
+
 }
