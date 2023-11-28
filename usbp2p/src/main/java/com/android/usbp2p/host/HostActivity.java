@@ -35,7 +35,7 @@ public class HostActivity extends BaseChatActivity {
         @Override
         public void run() {
             UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-            UsbDevice device = getIntent().getParcelableExtra(ConnectActivity.DEVICE_EXTRA_KEY);
+            UsbDevice device = getIntent().getParcelableExtra(Constants.DEVICE_EXTRA_KEY);
             UsbEndpoint endpointIn = null;
             UsbEndpoint endpointOut = null;
             UsbInterface usbInterface = device.getInterface(0);
@@ -77,7 +77,7 @@ public class HostActivity extends BaseChatActivity {
                 while (keepThreadAlive.get()) {
                     int bytesTransferred = connection.bulkTransfer(endpointIn, buff, buff.length, Constants.USB_TIMEOUT_IN_MS);
                     if (bytesTransferred > 0) {
-                        printLineToUI("device> " + new String(buff, 0, bytesTransferred));
+                        printLineToUI("接收:" + new String(buff, 0, bytesTransferred));
                     }
 
                     synchronized (sendBuffer) {

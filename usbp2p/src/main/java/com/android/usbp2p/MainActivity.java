@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.host).setOnClickListener(v -> {
         });
         findViewById(R.id.devices).setOnClickListener(v -> {
-            startActivity(new Intent(this, MainUsbActivity.class));
+//            startActivity(new Intent(this, MainUsbActivity.class));
         });
     }
 }

@@ -16,7 +16,7 @@ public abstract class BaseChatActivity extends AppCompatActivity {
         final String inputString = input.getText().toString();
         if (inputString.length() == 0) return;
         sendString(inputString);
-        printLineToUI("<![CDATA[host> ]]>" + inputString);
+        printLineToUI("发送:" + inputString);
         input.setText("");
     }
 
@@ -31,7 +31,7 @@ public abstract class BaseChatActivity extends AppCompatActivity {
         findViewById(R.id.send_button).setOnClickListener(v -> onButtonClick());
     }
 
-    protected void printLineToUI(final String line) {
-        runOnUiThread(() -> contentTextView.setText(contentTextView.getText() + "\n" + line));
+    protected void printLineToUI(String line) {
+        runOnUiThread(() -> contentTextView.append(line + "\n"));
     }
 }

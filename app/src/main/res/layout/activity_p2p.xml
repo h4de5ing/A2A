@@ -20,6 +20,7 @@
         android:layout_above="@+id/ll"
         android:layout_below="@+id/title"
         android:background="@color/grey"
+        android:scrollbars="vertical"
         android:text="log:" />
 
     <LinearLayout
@@ -37,8 +38,8 @@
             android:text="hello world~" />
 
         <Button
-            android:layout_width="wrap_content"
             android:id="@+id/send"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="发送" />
     </LinearLayout>

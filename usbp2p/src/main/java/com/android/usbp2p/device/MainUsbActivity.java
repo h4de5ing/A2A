@@ -15,7 +15,6 @@ import com.android.usbp2p.host.BaseChatActivity;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class MainUsbActivity extends BaseChatActivity implements Runnable {
     private static final String ACTION_USB_PERMISSION = "com.examples.accessory.controller.action.USB_PERMISSION";
@@ -32,7 +31,7 @@ public class MainUsbActivity extends BaseChatActivity implements Runnable {
         try {
             mOutputStream.write(string.getBytes());
         } catch (Exception e) {
-            updateUI("发送失败；" + e.getMessage());
+            updateUI("发送失败：" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -52,12 +51,9 @@ public class MainUsbActivity extends BaseChatActivity implements Runnable {
         UsbAccessory[] accessories = mUsbManager.getAccessoryList();
         UsbAccessory accessory = (accessories == null ? null : accessories[0]);
         if (accessory != null) {
-            updateUI("找到UsbAccessory设备了");
             if (mUsbManager.hasPermission(accessory)) {
-                updateUI("有权限");
                 openAccessory(accessory);
             } else {
-                updateUI("没权限");
                 synchronized (mUsbReceiver) {
                     if (!mPermissionRequestPending) {
                         mUsbManager.requestPermission(accessory, mPermissionIntent);
@@ -86,7 +82,7 @@ public class MainUsbActivity extends BaseChatActivity implements Runnable {
     private void openAccessory(UsbAccessory accessory) {
         mFileDescriptor = mUsbManager.openAccessory(accessory);
         if (mFileDescriptor != null) {
-            updateUI("打开了 UsbAccessory 设备 " + accessory);
+            updateUI(accessory + " " + accessory.getSerial());
             mAccessory = accessory;
             FileDescriptor fd = mFileDescriptor.getFileDescriptor();
             mInputStream = new FileInputStream(fd);
@@ -117,16 +113,14 @@ public class MainUsbActivity extends BaseChatActivity implements Runnable {
                     UsbAccessory accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         openAccessory(accessory);
-                        updateUI("openAccessory");
                     } else {
                         updateUI("permission denied for accessory " + accessory);
                     }
                     mPermissionRequestPending = false;
                 }
             } else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
-                UsbAccessory accessory = (UsbAccessory) intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
+                UsbAccessory accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
                 if (accessory != null && accessory.equals(mAccessory)) {
-                    updateUI("closeAccessory");
                     closeAccessory();
                 }
             }
@@ -138,10 +132,8 @@ public class MainUsbActivity extends BaseChatActivity implements Runnable {
         while (true) {
             try {
                 int ret = mInputStream.read(buffer);
-                if (ret > 0) {
-                    updateUI("收到数据: " + new String(buffer));
-                }
-            } catch (IOException e) {
+                if (ret > 0) updateUI("接收: " + new String(buffer));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

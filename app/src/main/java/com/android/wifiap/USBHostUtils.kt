@@ -14,20 +14,16 @@ import android.hardware.usb.UsbRequest
 import android.os.Build
 import android.os.SystemClock
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 import kotlin.concurrent.thread
 
-private val usbAction = "com.android.usb.host"
+private const val usbAction = "com.android.usb.host"
 private var mContext: Context? = null
 private var manager: UsbManager? = null
 private var mDevice: UsbDevice? = null
 private var mUsbEndpointIn: UsbEndpoint? = null
 private var mUsbEndpointOut: UsbEndpoint? = null
 private var mUsbDeviceConnection: UsbDeviceConnection? = null
-private val scope = MainScope()
 fun initUSB(
     context: Context,
     connected: ((Boolean, UsbDevice?) -> Unit) = { _, _ -> },
@@ -41,12 +37,10 @@ fun initUSB(
     filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
     ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val action = intent?.action
-            if (action != null) {
-                when (action) {
+            intent?.action?.apply {
+                when (this) {
                     usbAction -> connect()
                     UsbManager.ACTION_USB_DEVICE_ATTACHED -> attached(attached = connected)
-
                     UsbManager.ACTION_USB_DEVICE_DETACHED -> {
                         connected(false, mDevice)
                         detached()
@@ -56,29 +50,21 @@ fun initUSB(
         }
     }, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
     attached(attached = connected)
-
     thread {
-        scope.launch(Dispatchers.IO) {
-            while (true) {
-                readData(data)
-                SystemClock.sleep(10)
-            }
+        while (true) {
+            readData(data)
+            SystemClock.sleep(10)
         }
     }
 }
 
-
-fun isConnected(): Boolean = mUsbDeviceConnection != null
-
-fun send(data: ByteArray, onChange: (Boolean) -> Unit = {}) {
+fun send(data: ByteArray) {
     try {
         mUsbDeviceConnection?.apply {
             println("USB 写入:${String(data)}")
             bulkTransfer(mUsbEndpointOut, data, data.size, 1000)
-            onChange(true)
         }
     } catch (e: Exception) {
-        onChange(false)
         e.printStackTrace()
     }
 }
@@ -107,6 +93,7 @@ private fun attached(attached: ((Boolean, UsbDevice?) -> Unit)) {
     manager?.deviceList?.values?.apply {
         for (device in this) {
             mDevice = device
+            if (isUsbAccessory(device)) initAccessory(device)
         }
     }
     mDevice?.apply {
@@ -122,6 +109,46 @@ private fun attached(attached: ((Boolean, UsbDevice?) -> Unit)) {
         }
     }
     attached(mDevice != null, mDevice)
+}
+
+private fun isUsbAccessory(device: UsbDevice): Boolean =
+    device.productId == 0x2d00 || device.productId == 0x2d01
+
+private fun initAccessory(device: UsbDevice) {
+    try {
+        manager?.openDevice(device)?.apply {
+            initStringControlTransfer(this, 0, "h4de5ing") // MANUFACTURER
+            initStringControlTransfer(this, 1, "Android2AndroidAccessory") // MODEL
+            initStringControlTransfer(this, 2, "android2android USB communication") // DESCRIPTION
+            initStringControlTransfer(this, 3, "1.0") // VERSION
+            initStringControlTransfer(this, 4, "https://github.com/h4de5ing") // URI
+            initStringControlTransfer(this, 5, "42") // SERIAL
+            controlTransfer(0x40, 53, 0, 0, byteArrayOf(), 0, 1000)
+            close()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+private fun initStringControlTransfer(
+    deviceConnection: UsbDeviceConnection,
+    index: Int,
+    string: String
+) {
+    try {
+        deviceConnection.controlTransfer(
+            0x40,
+            52,
+            0,
+            index,
+            string.toByteArray(),
+            string.length,
+            1000
+        )
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 private fun detached() {

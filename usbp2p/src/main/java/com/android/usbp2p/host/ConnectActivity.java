@@ -15,8 +15,6 @@ import java.util.HashMap;
 
 
 public class ConnectActivity extends AppCompatActivity {
-
-    public static final String DEVICE_EXTRA_KEY = "device";
     private UsbManager mUsbManager;
 
     @Override
@@ -41,7 +39,7 @@ public class ConnectActivity extends AppCompatActivity {
         for (UsbDevice device : deviceList.values()) {
             if (isUsbAccessory(device)) {
                 Intent intent = new Intent(this, HostActivity.class);
-                intent.putExtra(DEVICE_EXTRA_KEY, device);
+                intent.putExtra(Constants.DEVICE_EXTRA_KEY, device);
                 startActivity(intent);
                 finish();
                 return true;
@@ -58,11 +56,11 @@ public class ConnectActivity extends AppCompatActivity {
     private boolean initAccessory(UsbDevice device) {
         UsbDeviceConnection connection = mUsbManager.openDevice(device);
         if (connection == null) return false;
-        initStringControlTransfer(connection, 0, "quandoo"); // MANUFACTURER
+        initStringControlTransfer(connection, 0, "H4de5ing"); // MANUFACTURER
         initStringControlTransfer(connection, 1, "Android2AndroidAccessory"); // MODEL
         initStringControlTransfer(connection, 2, "showcasing android2android USB communication"); // DESCRIPTION
         initStringControlTransfer(connection, 3, "0.1"); // VERSION
-        initStringControlTransfer(connection, 4, "http://quandoo.de"); // URI
+        initStringControlTransfer(connection, 4, "https://github.com/h4de5ing"); // URI
         initStringControlTransfer(connection, 5, "42"); // SERIAL
         connection.controlTransfer(0x40, 53, 0, 0, new byte[]{}, 0, Constants.USB_TIMEOUT_IN_MS);
         connection.close();
