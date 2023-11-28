@@ -6,7 +6,7 @@ import android.text.TextUtils
 import android.text.method.ScrollingMovementMethod
 import com.android.wifiap.databinding.ActivityP2pBinding
 
-class USBP2PActivity : Activity() {
+class HostActivity : Activity() {
     private lateinit var binding: ActivityP2pBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

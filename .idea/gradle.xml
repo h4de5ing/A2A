@@ -16,6 +16,7 @@
             <option value="$PROJECT_DIR$/host" />
             <option value="$PROJECT_DIR$/main" />
             <option value="$PROJECT_DIR$/usbp2p" />
+            <option value="$PROJECT_DIR$/usbp2p2" />
           </set>
         </option>
       </GradleProjectSettings>
