@@ -23,7 +23,6 @@ android {
         create("release") {
             keyAlias = "android"
             keyPassword = "android"
-            //Q865M_Q115M_android11
             storeFile = file("D:\\Android12SignerGUI\\SignFiles\\NewPublic\\platform.jks")
             storePassword = "android"
         }
