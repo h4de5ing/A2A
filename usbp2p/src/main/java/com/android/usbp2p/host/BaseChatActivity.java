@@ -31,7 +31,7 @@ public abstract class BaseChatActivity extends AppCompatActivity {
         findViewById(R.id.send_button).setOnClickListener(v -> onButtonClick());
     }
 
-    protected void printLineToUI(String line) {
+    public void printLineToUI(String line) {
         runOnUiThread(() -> contentTextView.append(line + "\n"));
     }
 }

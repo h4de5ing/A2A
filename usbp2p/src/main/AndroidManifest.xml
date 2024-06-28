@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".host.HostActivity" />
+        <activity android:name=".host.TestHostActivity" />
         <activity
             android:name=".host.ConnectActivity"
             android:exported="true">
