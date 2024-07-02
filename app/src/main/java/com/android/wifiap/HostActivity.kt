@@ -8,6 +8,7 @@ import com.android.wifiap.databinding.ActivityP2pBinding
 
 class HostActivity : Activity() {
     private lateinit var binding: ActivityP2pBinding
+    private var count = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityP2pBinding.inflate(layoutInflater)
@@ -18,7 +19,11 @@ class HostActivity : Activity() {
             binding.send.isEnabled = connected
         }, data = {
             if (it.isNotEmpty())
-                runOnUiThread { binding.result.append("收到:${String(it)}\n") }
+                runOnUiThread {
+                    count++
+                    binding.result.append("收到:${String(it)}\n")
+                    binding.count.text = "收到数据包: $count"
+                }
         })
         initAccessory(this,
             connected = { connected, accessory ->
@@ -34,14 +39,14 @@ class HostActivity : Activity() {
                 binding.send.isEnabled = connected
             }, data = {
                 if (it.isNotEmpty())
-                    runOnUiThread { binding.result.append("收到:${String(it)}\n") }
+                    runOnUiThread { binding.result.append("Host 收到:${String(it)}\n") }
             })
         binding.send.setOnClickListener {
             val inputStr = binding.input.text.toString()
             if (!TextUtils.isEmpty(inputStr)) {
                 send(inputStr.toByteArray())
                 sendAccessory(inputStr.toByteArray())
-                binding.input.setText("")
+                //binding.input.setText("")
             }
         }
     }

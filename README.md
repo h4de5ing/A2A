@@ -18,3 +18,15 @@ Android USB
 https://cloud.tencent.com/developer/article/2041129
 
 
+ya-webadb + websockify
+
+Android 远程控制与投屏方案
+基于ADB
+https://github.com/Genymobile/scrcpy
+https://github.com/barry-ran/QtScrcpy
+基于网页
+https://github.com/openstf/minicap
+https://github.com/openstf/stf
+修改版本
+https://testerhome.com/topics/21647
+

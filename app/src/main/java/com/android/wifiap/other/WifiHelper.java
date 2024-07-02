@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.DhcpInfo;
-import android.net.TetheringManager;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
@@ -322,14 +321,14 @@ public class WifiHelper {
     @SuppressLint("WrongConstant")
     private void startTethering() {
         try {
-            TetheringManager tm = (TetheringManager) mContext.getSystemService("tethering");
-            tm.startTethering(0, command -> {
-            }, new TetheringManager.StartTetheringCallback() {
-                @Override
-                public void onTetheringStarted() {
-
-                }
-            });
+//            TetheringManager tm = (TetheringManager) mContext.getSystemService("tethering");
+//            tm.startTethering(0, command -> {
+//            }, new TetheringManager.StartTetheringCallback() {
+//                @Override
+//                public void onTetheringStarted() {
+//
+//                }
+//            });
         } catch (Exception e) {
             Log.e(TAG, "打开热点失败");
             e.printStackTrace();

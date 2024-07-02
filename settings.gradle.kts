@@ -14,7 +14,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "WIFIAP"
-include(":app")
-include(":usbp2p")
+//include(":app")
+//include(":usbp2p")
 include(":screen")
 include(":scrcpy")

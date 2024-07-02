@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.usb.UsbManager
 import android.net.ConnectivityManager
-import android.net.TetheringManager
+//import android.net.TetheringManager
 import android.net.wifi.WifiManager
 
 fun isWifiApEnabled(context: Context): Boolean =
@@ -13,8 +13,8 @@ fun isWifiApEnabled(context: Context): Boolean =
 @SuppressLint("WrongConstant")
 fun startTethering(context: Context) {
     try {
-        (context.getSystemService("tethering") as TetheringManager)
-            .startTethering(0, { }, object : TetheringManager.StartTetheringCallback {})
+//        (context.getSystemService("tethering") as TetheringManager)
+//            .startTethering(0, { }, object : TetheringManager.StartTetheringCallback {})
     } catch (e: Exception) {
         e.printStackTrace()
     }
@@ -23,9 +23,9 @@ fun startTethering(context: Context) {
 @SuppressLint("WrongConstant")
 fun stopTethering(context: Context) {
     try {
-        (context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).stopTethering(
-            0
-        )
+//        (context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).stopTethering(
+//            0
+//        )
     } catch (e: Exception) {
         e.printStackTrace()
     }

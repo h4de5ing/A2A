@@ -5,7 +5,7 @@ import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import com.android.wifiap.databinding.ActivityMainBinding
-import com.android.wifiap.other.SoftApCallback.registerSoftApCallback
+//import com.android.wifiap.other.SoftApCallback.registerSoftApCallback
 import com.android.wifiap.other.startTethering
 import com.android.wifiap.other.stopTethering
 
@@ -23,6 +23,6 @@ class MainActivity2 : Activity() {
         binding.close.setOnClickListener {
             stopTethering(this)
         }
-        registerSoftApCallback(this)
+//        registerSoftApCallback(this)
     }
 }

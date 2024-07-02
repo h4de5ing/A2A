@@ -54,7 +54,7 @@ fun initAccessory(
                                     false
                                 )
                             ) {
-                                openAccessory(accessory)
+                                openAccessory(accessory!!)
                             }
                             mPermissionRequestPending = false
                         }

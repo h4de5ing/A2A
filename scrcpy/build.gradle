@@ -1,0 +1,57 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdk 34
+    namespace "com.genymobile.scrcpy"
+    defaultConfig {
+        applicationId "com.genymobile.scrcpy.v1"
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 3
+        versionName "1.2"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    task copyRelease(dependsOn: 'deleteServer', type: Copy) {
+        from file('build/outputs/apk/release/server-release-unsigned.apk')
+        into file('../screen/src/main/assets')
+        rename('server-release-unsigned.apk', 'scrcpy-server.jar')
+    }
+
+    task deleteServer(type: Delete) {
+        delete "../screen/src/main/assets/scrcpy-server.jar"
+    }
+
+
+    task copyDebug(dependsOn: 'deleteServer', type: Copy) {
+        from file("build/outputs/apk/debug/server-debug.apk")
+        into file("../screen/src/main/assets/")
+        rename('server-debug.apk', 'scrcpy-server.jar')
+    }
+
+    afterEvaluate {
+        packageRelease.finalizedBy(copyRelease)
+    }
+
+    afterEvaluate {
+        packageDebug.finalizedBy(copyDebug)
+    }
+    buildFeatures {
+        aidl true
+        buildConfig true
+    }
+}
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.13.2'
+}
+
+apply from: "$project.rootDir/config/android-checkstyle.gradle"
+

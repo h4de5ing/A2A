@@ -26,7 +26,6 @@ class AccessoryActivity : Activity() {
     private var mInputStream: FileInputStream? = null
     private var mOutputStream: FileOutputStream? = null
     private var mPermissionIntent: PendingIntent? = null
-    private var mPermissionRequestPending = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityP2pBinding.inflate(layoutInflater)
@@ -41,7 +40,7 @@ class AccessoryActivity : Activity() {
                 PendingIntent.FLAG_IMMUTABLE
             )
         val filter = IntentFilter(usbAction)
-//        filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)
+        filter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED)
         filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED)
         ContextCompat.registerReceiver(this, object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -57,7 +56,9 @@ class AccessoryActivity : Activity() {
                                     )
                                 ) {
                                     updateUI("usbAction")
-                                    attached(accessory)
+                                    if (accessory != null) {
+                                        attached(accessory)
+                                    }
                                 }
                             }
                         }
@@ -88,7 +89,7 @@ class AccessoryActivity : Activity() {
             while (true) {
                 try {
                     val ret = mInputStream?.read(buffer) ?: 0
-                    if (ret > 0) updateUI("收到:" + String(buffer))
+                    if (ret > 0) updateUI("Accessory 收到:" + String(buffer))
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
