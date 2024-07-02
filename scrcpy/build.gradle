@@ -7,8 +7,8 @@ android {
         applicationId "com.genymobile.scrcpy.v1"
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 3
-        versionName "1.2"
+        versionCode 25
+        versionName "2.5"
     }
 
     buildTypes {
@@ -18,9 +18,9 @@ android {
     }
 
     task copyRelease(dependsOn: 'deleteServer', type: Copy) {
-        from file('build/outputs/apk/release/server-release-unsigned.apk')
-        into file('../screen/src/main/assets')
-        rename('server-release-unsigned.apk', 'scrcpy-server.jar')
+        from file('build/outputs/apk/release/scrcpy-release-unsigned.apk')
+        into file('../screen/src/main/assets/')
+        rename('scrcpy-release-unsigned.apk', 'scrcpy-server.jar')
     }
 
     task deleteServer(type: Delete) {
@@ -29,9 +29,9 @@ android {
 
 
     task copyDebug(dependsOn: 'deleteServer', type: Copy) {
-        from file("build/outputs/apk/debug/server-debug.apk")
+        from file("build/outputs/apk/debug/scrcpy-debug.apk")
         into file("../screen/src/main/assets/")
-        rename('server-debug.apk', 'scrcpy-server.jar')
+        rename('scrcpy-debug.apk', 'scrcpy-server.jar')
     }
 
     afterEvaluate {
