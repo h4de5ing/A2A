@@ -18,3 +18,5 @@ rootProject.name = "WIFIAP"
 //include(":usbp2p")
 include(":screen")
 include(":scrcpy")
+include(":AServer")
+include(":BClient")

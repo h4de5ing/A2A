@@ -1,0 +1,17 @@
+apply plugin: 'com.android.application'
+android {
+    compileSdk 34
+    namespace "org.las2mile.scrcpy"
+    defaultConfig {
+        applicationId "org.las2mile.scrcpy.a"
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 5
+        versionName "2.1"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}

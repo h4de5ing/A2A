@@ -30,3 +30,6 @@ https://github.com/openstf/stf
 修改版本
 https://testerhome.com/topics/21647
 
+AServer BClient 修改版本参考源码 
+https://gitlab.com/las2mile/scrcpy-android
+
