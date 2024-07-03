@@ -15,20 +15,20 @@ app Server 端试试获取Android画面，通过某种协议传递给第三方ap
 
 参考资料：
 Android USB
-https://cloud.tencent.com/developer/article/2041129
+https://cloud.tencent.com/developer/article/2041129  
 
 
 ya-webadb + websockify
 
 Android 远程控制与投屏方案
 基于ADB
-https://github.com/Genymobile/scrcpy
-https://github.com/barry-ran/QtScrcpy
+https://github.com/Genymobile/scrcpy  
+https://github.com/barry-ran/QtScrcpy  
 基于网页
-https://github.com/openstf/minicap
-https://github.com/openstf/stf
+https://github.com/openstf/minicap  
+https://github.com/openstf/stf  
 修改版本
-https://testerhome.com/topics/21647
+https://testerhome.com/topics/21647  
 
 AServer BClient 修改版本参考源码 
 https://gitlab.com/las2mile/scrcpy-android
