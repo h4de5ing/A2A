@@ -17,11 +17,16 @@ app Server 端试试获取Android画面，通过某种协议传递给第三方ap
 Android USB
 https://cloud.tencent.com/developer/article/2041129  
 
-
 ya-webadb + websockify
 
-Android 远程控制与投屏方案
-基于ADB
+https://www.vysor.io  
+网页adb
+https://app.tangoapp.dev  
+https://yume-chan.github.io/ya-webadb/scrcpy  
+https://gitee.com/viarotel-org/escrcpy 基于js版本  
+
+Android 远程控制与投屏方案  
+基于ADB  
 https://github.com/Genymobile/scrcpy  
 https://github.com/barry-ran/QtScrcpy  
 基于网页
