@@ -50,21 +50,18 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.ip).text = getMyIp()
         val input = findViewById<EditText>(R.id.input)
         findViewById<Button>(R.id.button).setOnClickListener {
-            send(input.text.toString())
         }
         serverThread = ServerThread(8000)
         serverThread?.start()
-        //copyAssetToTmpDir(this, "scrcpy-server.jar")
-        scope.launch(Dispatchers.IO) {
-            connectToServer("10.16.127.95")
-        }
+        Thread {
+            connectToServer("10.16.127.95", 8000)
+        }.start()
     }
 
     private var socket: Socket? = null
     private var bufferedWriter: BufferedWriter? = null
-    private fun connectToServer(ip: String) {
+    private fun connectToServer(ip: String, port: Int) {
         try {
-            val port = 8000
             socket = Socket(ip, port)
             Log.i("Client", "Connected to server")
             if (socket != null) {
@@ -76,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                         while (true) {
                             inputLine = reader.readLine()
                             if (inputLine != null) {
-//                                runOnUiThread { tv.append("收到结果:${inputLine}\n") }
+                                runOnUiThread { tv.append("收到结果:${inputLine}\n") }
                                 Log.i("Client", "收到结果:$inputLine")
                             }
                         }
