@@ -8,23 +8,21 @@
 Andorid 投屏的方式：
 1.USB 走adb
 2.WIFI
-3.HDMI
+3.内网主机发现ndsmanager
 4.DLNA
 
-app Server 端试试获取Android画面，通过某种协议传递给第三方app或者协议
-
 参考资料：
+```agsl
 Android USB
+
 https://cloud.tencent.com/developer/article/2041129  
-
 ya-webadb + websockify
-
 https://www.vysor.io  
 网页adb
-https://app.tangoapp.dev  
+https://app.tangoapp.dev    
 https://yume-chan.github.io/ya-webadb/scrcpy  
-https://gitee.com/viarotel-org/escrcpy 基于js版本  
-
+https://github.com/yume-chan/ya-webadb
+https://gitee.com/viarotel-org/escrcpy 基于Desktop js版本  
 Android 远程控制与投屏方案  
 基于ADB  
 https://github.com/Genymobile/scrcpy  
@@ -34,7 +32,23 @@ https://github.com/openstf/minicap
 https://github.com/openstf/stf  
 修改版本
 https://testerhome.com/topics/21647  
-
 AServer BClient 修改版本参考源码 
 https://gitlab.com/las2mile/scrcpy-android
+Android实现录屏直播（三）MediaProjection + VirtualDisplay + librtmp + MediaCodec实现视频编码并推流到rtmp服务器  
+https://www.cnblogs.com/raomengyang/p/6544908.html  
+https://github.com/myrao/ScreenRecorder
 
+Android官方的录屏 MediaRecorder
+https://github.com/android/media-samples
+
+https://github.com/yrom/ScreenRecorder
+https://github.com/omerjerk/Screenshotter
+kmp 跨拼图底层实现库
+https://github.com/JetBrains/skiko
+
+java环境进行H264视频解码库
+https://github.com/bytedeco/javacv
+https://github.com/bytedeco/javacv   底层C++实现
+
+http://jcodec.org/
+```
