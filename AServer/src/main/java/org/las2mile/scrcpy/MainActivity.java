@@ -83,27 +83,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         }
     };
 
-    public static String getMyIp() {
-        String ip = "127.0.0.1";
-        try {
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = networkInterfaces.nextElement();
-                if (networkInterface.isUp() && !networkInterface.isLoopback()) {
-                    Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
-                    while (inetAddresses.hasMoreElements()) {
-                        InetAddress inetAddress = inetAddresses.nextElement();
-                        if (inetAddress instanceof Inet4Address) {
-                            ip = inetAddress.getHostAddress();
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (SocketException ignored) {
-        }
-        return ip;
-    }
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -123,7 +102,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         setContentView(R.layout.activity_main);
         Button startButton = findViewById(R.id.button_start);
         TextView ip = findViewById(R.id.ip);
-        ip.setText("本机IP:" + getMyIp());
+        ip.setText("本机IP:" + Tools.getMyIp());
         startButton.setOnClickListener(v -> {
             getAttributes();
             if (!serverAdr.isEmpty()) {

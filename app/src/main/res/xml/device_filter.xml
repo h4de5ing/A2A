@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <usb-device />
+<resources xmlns:android="https://schema.android.com/apk/android">
+<!--    这样就只识别adb设备-->
+    <usb-device
+        class="255"
+        protocol="1"
+        subclass="66" />
+    <usb-device
+        class="255"
+        protocol="3"
+        subclass="66" />
 </resources>
 
 

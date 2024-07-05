@@ -9,6 +9,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/AServer" />
+            <option value="$PROJECT_DIR$/BClient" />
             <option value="$PROJECT_DIR$/scrcpy" />
             <option value="$PROJECT_DIR$/screen" />
           </set>

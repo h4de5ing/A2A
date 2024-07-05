@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".SurfaceViewActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,6 +23,10 @@
 
         <service
             android:name=".Scrcpy"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".SurfaceService"
             android:enabled="true"
             android:exported="true" />
     </application>

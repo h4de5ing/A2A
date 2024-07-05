@@ -6,10 +6,10 @@
 4. 互联画面投屏
 
 Andorid 投屏的方式：
-1.USB 走adb
-2.WIFI
-3.内网主机发现ndsmanager
-4.DLNA
+1.USB 走adb  
+2.WIFI  
+3.内网主机发现ndsmanager  
+4.DLNA  
 
 参考资料：
 ```agsl
