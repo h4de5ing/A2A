@@ -38,11 +38,14 @@ Android实现录屏直播（三）MediaProjection + VirtualDisplay + librtmp + M
 https://www.cnblogs.com/raomengyang/p/6544908.html  
 https://github.com/myrao/ScreenRecorder
 
+基于WebRTC 屏幕串流
+https://github.com/dkrivoruchko/ScreenStream
 Android官方的录屏 MediaRecorder
 https://github.com/android/media-samples
-
+https://github.com/lesa1127/AndroidScreenShare
 https://github.com/yrom/ScreenRecorder
 https://github.com/omerjerk/Screenshotter
+
 kmp 跨拼图底层实现库
 https://github.com/JetBrains/skiko
 
@@ -52,3 +55,10 @@ https://github.com/bytedeco/javacv   底层C++实现
 
 http://jcodec.org/
 ```
+
+## 局域网设备发现
+````markdown
+1.UDP广播
+2.NsdManager
+
+````

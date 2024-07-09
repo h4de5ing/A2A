@@ -2,18 +2,15 @@ package com.android.h4de5ing.screen
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.BufferedWriter
+import java.io.DataInputStream
+import java.io.DataOutputStream
 import java.io.IOException
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
+import java.math.BigInteger
 import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.net.Socket
@@ -48,57 +45,54 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         tv = findViewById(R.id.tv)
         findViewById<TextView>(R.id.ip).text = getMyIp()
-        val input = findViewById<EditText>(R.id.input)
-        findViewById<Button>(R.id.button).setOnClickListener {
-        }
         serverThread = ServerThread(8000)
         serverThread?.start()
-        Thread {
-            connectToServer("10.16.127.95", 8000)
-        }.start()
+//        Thread {
+//            connectToServer("10.16.126.38", 7007)
+//        }.start()
+//        ClientThread().start()
     }
 
     private var socket: Socket? = null
-    private var bufferedWriter: BufferedWriter? = null
+    private var dataOutputStream: DataOutputStream? = null
+    private var dataInputStream: DataInputStream? = null
     private fun connectToServer(ip: String, port: Int) {
         try {
             socket = Socket(ip, port)
             Log.i("Client", "Connected to server")
             if (socket != null) {
-                bufferedWriter = BufferedWriter(OutputStreamWriter(socket!!.getOutputStream()))
-                val reader = BufferedReader(InputStreamReader(socket!!.getInputStream()))
-                Thread {
-                    try {
-                        var inputLine: String?
-                        while (true) {
-                            inputLine = reader.readLine()
-                            if (inputLine != null) {
-                                runOnUiThread { tv.append("收到结果:${inputLine}\n") }
-                                Log.i("Client", "收到结果:$inputLine")
+                socket?.apply {
+                    dataOutputStream = DataOutputStream(getOutputStream())
+                    dataInputStream = DataInputStream(getInputStream())
+                    Thread {
+                        try {
+                            while (true) {
+                                val length = dataInputStream?.available() ?: 0
+                                if (length > 0) {
+                                    val packetSize = ByteArray(4)
+                                    dataInputStream?.readFully(packetSize, 0, 4)
+                                    println("读取到视频数据长度:${BigInteger(packetSize).toInt()}")
+                                }
                             }
+                        } catch (e: IOException) {
+                            e.printStackTrace()
                         }
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }.start()
+                    }.start()
+                }
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            Log.e("Client", "Error connecting to server", e)
         }
     }
 
     private fun send(message: String) {
         try {
             scope.launch(Dispatchers.IO) {
-                bufferedWriter?.write(message)
-                bufferedWriter?.newLine()
-                bufferedWriter?.flush()
-                Log.i("Client", "Sent message: $message")
+                dataOutputStream?.write(message.toByteArray())
+                dataOutputStream?.flush()
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            Log.e("Client", "Error sending message", e)
         }
     }
 

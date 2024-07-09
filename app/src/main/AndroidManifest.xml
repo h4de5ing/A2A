@@ -10,7 +10,11 @@
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.TETHER_PRIVILEGED" />
-    <uses-feature android:name="android.hardware.usb.host" android:required="true" />
+
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,33 +23,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WIFIAP"
         tools:targetApi="31">
+
+
         <activity
-            android:name=".AccessoryActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:label="Accessory Controller"
             android:theme="@style/Theme.WIFIAP">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" />
+                <!-- <action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" /> -->
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-
-            <meta-data
-                android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
-                android:resource="@xml/accessory_filter" />
+            <!-- <meta-data -->
+            <!-- android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" -->
+            <!-- android:resource="@xml/accessory_filter" /> -->
         </activity>
-        <activity
-            android:name=".HostActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-            </intent-filter>
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/device_filter" />
-        </activity>
+        <service
+            android:name=".NsdService"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
 
 </manifest>

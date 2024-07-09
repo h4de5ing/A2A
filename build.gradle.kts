@@ -6,6 +6,6 @@ plugins {
 }
 gradle.projectsEvaluated {
     tasks.withType<JavaCompile>().configureEach {
-        options.compilerArgs.add("-Xbootclasspath/p:app\\libs\\classes.jar")
+        options.compilerArgs.add("-Xbootclasspath/p:CClient\\libs\\framework.jar")
     }
 }

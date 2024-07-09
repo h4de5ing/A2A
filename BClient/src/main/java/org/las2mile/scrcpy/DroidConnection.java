@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public final class DroidConnection extends Thread {
-    private static Socket socket = null;
-    private Device mDdevice;
+    private final Device mDdevice;
 
     public DroidConnection(Device device) {
         this.mDdevice = device;
@@ -15,7 +14,7 @@ public final class DroidConnection extends Thread {
     public void run() {
         super.run();
         try {
-            socket = new Socket("10.16.127.95", 7000);
+            Socket socket = new Socket("10.18.16.118", 7000);
             Ln.d(">>>>>>Client connect success<<<<<<" + socket.getRemoteSocketAddress());
             new PullEventThread(mDdevice, socket).start();
             new PushVideoThread(mDdevice, socket).start();

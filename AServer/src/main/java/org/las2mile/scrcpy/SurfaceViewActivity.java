@@ -53,7 +53,7 @@ public class SurfaceViewActivity extends Activity {
         TextView ip = findViewById(R.id.ip);
         ip.setText("本机IP:" + Tools.getMyIp());
         surfaceView = findViewById(R.id.decoder_surface);
-        surfaceView.setOnTouchListener((v, event) -> touchEvent(event, surfaceView.getWidth(), surfaceView.getHeight()));
+//        surfaceView.setOnTouchListener((v, event) -> touchEvent(event, surfaceView.getWidth(), surfaceView.getHeight()));
         new Thread(() -> {
             try {
                 serverSocket = new ServerSocket(7000);
@@ -82,7 +82,7 @@ public class SurfaceViewActivity extends Activity {
                         remote_dev_resolution[0] = remote_dev_resolution[1];
                         remote_dev_resolution[1] = i;
                     }
-                    Log.e("Remote device res", remote_dev_resolution[0] + " x " + remote_dev_resolution[1]);
+                    Log.e("SurfaceViewActivity", remote_dev_resolution[0] + " x " + remote_dev_resolution[1]);
                     while (LetServceRunning.get()) {
                         try {
                             if (event != null) {
@@ -94,6 +94,7 @@ public class SurfaceViewActivity extends Activity {
                                 packetSize = new byte[4];
                                 dataInputStream.readFully(packetSize, 0, 4);
                                 int size = ByteUtils.bytesToInt(packetSize);
+                                Log.e("SurfaceViewActivity","视频数据大小:" + size);
                                 byte[] packet = new byte[size];
                                 dataInputStream.readFully(packet, 0, size);
                                 VideoPacket videoPacket = VideoPacket.fromArray(packet);

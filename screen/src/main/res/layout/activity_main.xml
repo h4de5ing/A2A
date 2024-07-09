@@ -16,12 +16,6 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ls /sdcard" />
-
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"

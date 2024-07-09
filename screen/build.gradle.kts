@@ -19,7 +19,7 @@ android {
             keyAlias = "android"
             keyPassword = "android"
             storeFile =
-                file("D:\\Android12SignerGUI\\SignFiles\\Q86\\platform.jks")
+                file("D:\\Android12SignerGUI\\SignFiles\\NewPublic\\platform.jks")
             storePassword = "android"
         }
     }
