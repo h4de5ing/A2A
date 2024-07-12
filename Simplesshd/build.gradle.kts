@@ -49,4 +49,5 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.transition:transition:1.5.0")
     implementation("com.google.android.material:material:1.12.0")
+    implementation("com.github.mwiede:jsch:0.2.18")
 }

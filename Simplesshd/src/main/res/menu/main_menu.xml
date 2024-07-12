@@ -6,11 +6,10 @@
         android:title="@string/lbl_start"
         app:actionLayout="@layout/toolbar_menu_buttons_start"
         app:showAsAction="always" />
-
     <item
-        android:id="@+id/settings"
-        android:icon="@drawable/settings_24px"
-        android:title="@string/lbl_settings" />
+        android:id="@+id/forward_action"
+        android:title="转发"
+        app:showAsAction="always" />
     <item
         android:id="@+id/menu_import_keys"
         android:title="@string/lbl_import_keys" />

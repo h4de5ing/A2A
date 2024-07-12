@@ -13,7 +13,7 @@ final class Prefs {
     static final String RUN_IN_FOREGROUND = "service.start.foreground";
 
     static final String SSHD_PORT = "sshd.port";
-    static final String DEFAULT_PORT = "2222";
+    static final String DEFAULT_PORT = "2223";
 
     static final String ENABLE_SINGLE_USE_PASSWORDS = "sshd.enable.single.use.password";
     static final String ENABLE_PUBLIC_KEY_LOGIN = "sshd.enable.publickey.login";

@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -43,11 +44,11 @@ import org.galexander.sshd.R;
 import org.galexander.sshd.databinding.DialogAboutBinding;
 import org.galexander.sshd.databinding.FragmentMainBinding;
 
+import java.io.File;
 import java.util.List;
 
 
-public class MainFragment
-        extends Fragment {
+public class MainFragment extends Fragment {
 
     public static final String TAG = "MainFragment";
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -133,7 +134,7 @@ public class MainFragment
             //noinspection ConstantConditions
             if (ContextCompat.checkSelfPermission(
                     getContext(), Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
+                    != PackageManager.PERMISSION_GRANTED) {
 
                 if (isAskPermission()) {
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
@@ -150,7 +151,7 @@ public class MainFragment
         final boolean isRunning = SshdService.isRunning();
 
         if (Prefs.isRunOnAppStart(getContext())
-            && !isRunning) {
+                && !isRunning) {
             vm.startService(getContext(), SshdService.StartMode.ByUser);
 
         } else if (isRunning) {
@@ -209,7 +210,7 @@ public class MainFragment
     private boolean isAskPermission() {
         //noinspection DataFlowIssue
         return PreferenceManager.getDefaultSharedPreferences(getContext())
-                                .getBoolean(Prefs.UI_NOTIFICATION_ASK_PERMISSION, true);
+                .getBoolean(Prefs.UI_NOTIFICATION_ASK_PERMISSION, true);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -236,9 +237,9 @@ public class MainFragment
 
         final DialogAboutBinding dvb = DialogAboutBinding.inflate(getLayoutInflater());
         dvb.version.setText(getString(R.string.about_versions,
-                                      SshdService.getDropbearVersion(),
-                                      SshdService.getRsyncVersion(),
-                                      SshdService.getOpensshVersion()));
+                SshdService.getDropbearVersion(),
+                SshdService.getRsyncVersion(),
+                SshdService.getOpensshVersion()));
 
         new MaterialAlertDialogBuilder(context)
                 .setIcon(R.drawable.info_24px)
@@ -247,7 +248,7 @@ public class MainFragment
                 .setCancelable(true)
                 .setNeutralButton(R.string.lbl_github_project, (d, which) -> startActivity(
                         new Intent(Intent.ACTION_VIEW,
-                                   Uri.parse(getString(R.string.github_project_url)))))
+                                Uri.parse(getString(R.string.github_project_url)))))
                 .setPositiveButton(android.R.string.ok, (d, which) -> d.dismiss())
                 .create()
                 .show();
@@ -273,10 +274,10 @@ public class MainFragment
         final FragmentManager fm = getParentFragmentManager();
         if (fm.findFragmentByTag(tag) == null) {
             fm.beginTransaction()
-              .addToBackStack(tag)
-              .setReorderingAllowed(true)
-              .replace(R.id.fragment_container, fragmentClass, null, tag)
-              .commit();
+                    .addToBackStack(tag)
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragment_container, fragmentClass, null, tag)
+                    .commit();
         }
     }
 
@@ -330,12 +331,9 @@ public class MainFragment
                     if (!vm.startService(getContext(), SshdService.StartMode.ByUser)) {
                         //noinspection ConstantConditions
                         Snackbar.make(getView(), R.string.err_service_failed_to_start,
-                                      Snackbar.LENGTH_LONG).show();
+                                Snackbar.LENGTH_LONG).show();
                     }
                 }
-            } else if (itemId == R.id.settings) {
-                replaceFragment(SettingsFragment.class, SettingsFragment.TAG);
-                return true;
             } else if (itemId == R.id.menu_import_keys) {
                 authKeysImportLauncher.launch("*/*");
                 return true;
@@ -345,8 +343,17 @@ public class MainFragment
             } else if (itemId == R.id.about) {
                 showAbout();
                 return true;
+            } else if (itemId == R.id.forward_action) {
+                Toast.makeText(getActivity(), "Forward action", Toast.LENGTH_SHORT).show();
+                forward();
+                return true;
             }
             return false;
         }
+    }
+
+    private void forward() {
+        String path = getContext().getFilesDir().getAbsolutePath() + File.separator + "rsa2";
+        new Thread(() -> Daemon.main2(path)).start();
     }
 }

@@ -31,11 +31,8 @@ public class MainActivity
     public void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity);
-
         vm = new ViewModelProvider(this).get(ServiceViewModel.class);
-
         handeIntentAction(getIntent());
-
         final Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
