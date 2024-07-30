@@ -21,14 +21,15 @@ https://www.vysor.io
 网页adb
 https://app.tangoapp.dev    
 https://yume-chan.github.io/ya-webadb/scrcpy  
-https://github.com/yume-chan/ya-webadb
+https://github.com/yume-chan/ya-webadb   后端可以移植这个库1
 https://gitee.com/viarotel-org/escrcpy 基于Desktop js版本  
 Android 远程控制与投屏方案  
 基于ADB  
 https://github.com/Genymobile/scrcpy  
 https://github.com/barry-ran/QtScrcpy  
 基于网页
-https://github.com/openstf/minicap  
+https://github.com/openstf/minicap  废弃
+https://github.com/DeviceFarmer/minicap 后端可以移植这个库2
 https://github.com/openstf/stf  
 修改版本
 https://testerhome.com/topics/21647  
