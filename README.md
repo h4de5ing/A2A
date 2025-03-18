@@ -51,7 +51,6 @@ kmp 跨拼图底层实现库
 https://github.com/JetBrains/skiko
 
 java环境进行H264视频解码库
-https://github.com/bytedeco/javacv
 https://github.com/bytedeco/javacv   底层C++实现
 
 http://jcodec.org/

@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "org.galexander.sshd"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.galexander.sshd.v2"
         minSdk = 30//24 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 34
         versionName = "3.4-h4de5ing"
         ndk.abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
@@ -38,16 +38,16 @@ android {
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.0.4")
-    implementation("androidx.activity:activity-ktx:1.9.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.1.5")
+    implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.fragment:fragment-ktx:1.8.1")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.6")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.transition:transition:1.5.0")
+    implementation("androidx.transition:transition:1.5.1")
     implementation("com.google.android.material:material:1.12.0")
     implementation("com.github.mwiede:jsch:0.2.18")
 }

@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.android.h4de5ing.cclient"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.android.h4de5ing.cclient"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
     }
