@@ -25,10 +25,6 @@
             android:name=".Scrcpy"
             android:enabled="true"
             android:exported="true" />
-        <service
-            android:name=".SurfaceService"
-            android:enabled="true"
-            android:exported="true" />
     </application>
 
 </manifest>

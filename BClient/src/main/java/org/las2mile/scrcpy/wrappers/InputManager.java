@@ -7,11 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public final class InputManager {
-
     public static final int INJECT_INPUT_EVENT_MODE_ASYNC = 0;
-    public static final int INJECT_INPUT_EVENT_MODE_WAIT_FOR_RESULT = 1;
-    public static final int INJECT_INPUT_EVENT_MODE_WAIT_FOR_FINISH = 2;
-
     private final IInterface manager;
     private final Method injectInputEventMethod;
 
