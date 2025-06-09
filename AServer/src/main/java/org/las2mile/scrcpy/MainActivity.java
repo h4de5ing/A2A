@@ -102,7 +102,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         setContentView(R.layout.activity_main);
         Button startButton = findViewById(R.id.button_start);
         TextView ip = findViewById(R.id.ip);
-        ip.setText("本机IP:" + Tools.getMyIp());
+//        ip.setText("本机IP:" + Tools.getMyIp());
         startButton.setOnClickListener(v -> {
             getAttributes();
             if (!serverAdr.isEmpty()) {

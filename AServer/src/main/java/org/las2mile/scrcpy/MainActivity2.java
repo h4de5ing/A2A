@@ -17,13 +17,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MainActivity2 extends Activity {
     private TextView tvData;
 
+    private int port = 7007;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         TextView ip = findViewById(R.id.ip);
         tvData = findViewById(R.id.data);
-        ip.setText("本机IP:" + Tools.getMyIp());
+        ip.setText("本机IP:" + Tools.getMyIp() + ":" + port);
 //        new ServerSocketThread(new DataChangeListener() {
 //            @Override
 //            public void onDataChange(byte[] data) {
@@ -38,7 +40,7 @@ public class MainActivity2 extends Activity {
 //        new ClientThread().start();
         new Thread(() -> {
             try {
-                serverSocket = new ServerSocket(7000);
+                serverSocket = new ServerSocket(port);
             } catch (IOException e) {
                 e.printStackTrace();
             }

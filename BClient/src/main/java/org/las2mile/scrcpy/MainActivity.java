@@ -47,15 +47,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         TextView tv = findViewById(R.id.ip);
-        TextView result = findViewById(R.id.result);
-        result.setOnClickListener(v -> start());
-        tv.setText("本机IP:" + getMyIp());
-    }
-
-    private void start() {
         new Thread(() -> {
             DroidConnection connection = new DroidConnection(new Device());
             connection.start();
+            runOnUiThread(() -> tv.setText("本机IP:" + getMyIp()));
         }).start();
     }
 
@@ -63,7 +58,7 @@ public class MainActivity extends Activity {
     private void testClient() {
         new Thread(() -> {
             try {
-                socket = new Socket("10.16.127.95", 7000);
+                socket = new Socket("10.16.127.111", 7000);
                 inputStream = new DataInputStream(socket.getInputStream());
                 outputStream = new DataOutputStream(socket.getOutputStream());
                 while (true) {

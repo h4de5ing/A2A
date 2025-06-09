@@ -1,10 +1,15 @@
 package org.las2mile.scrcpy;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public final class DroidConnection extends Thread {
     private final Device mDdevice;
+    private ServerSocket serverSocket = null;
+    private boolean isRunning = false;
+
+    private static Socket socket = null;
 
     public DroidConnection(Device device) {
         this.mDdevice = device;
@@ -14,12 +19,29 @@ public final class DroidConnection extends Thread {
     public void run() {
         super.run();
         try {
-            Socket socket = new Socket("10.18.16.247", 8002);
-            Ln.d(">>>>>>Client connect success<<<<<<" + socket.getRemoteSocketAddress());
-            new PullEventThread(mDdevice, socket).start();
-            new PushVideoThread(mDdevice, socket).start();
+            serverSocket = new ServerSocket(7007);
+            isRunning = true;
+            Ln.d(">>>>>>Screen Share ServerThread<<<<<<");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+//        try {
+//            Socket socket = new Socket("10.16.127.111", 7007);
+//            Ln.d(">>>>>>Client connect success<<<<<<" + socket.getRemoteSocketAddress());
+//            new PullEventThread(mDdevice, socket).start();
+//            new PushVideoThread(mDdevice, socket).start();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        while (isRunning) {
+            try {
+                Ln.d(">>>>>>Client connect success<<<<<<");
+                socket = serverSocket.accept();
+                new PullEventThread(mDdevice, socket).start();
+                new PushVideoThread(mDdevice, socket).start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
