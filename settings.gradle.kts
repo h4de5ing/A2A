@@ -14,13 +14,13 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "WIFIAP"
-include(":app")
-include(":usbp2p")
-include(":screen")
-include(":scrcpy")
-include(":AServer")
+//include(":app")
+//include(":usbp2p")
+//include(":screen")
+//include(":scrcpy")
+//include(":AServer")
 include(":BClient")
 include(":CClient")
-include(":Simplesshd")
-include(":Androidfrpc")
-include(":pf")
+//include(":Simplesshd")
+//include(":Androidfrpc")
+//include(":pf")

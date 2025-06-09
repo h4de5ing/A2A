@@ -47,12 +47,18 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         TextView tv = findViewById(R.id.ip);
+        TextView result = findViewById(R.id.result);
+        result.setOnClickListener(v -> start());
         tv.setText("本机IP:" + getMyIp());
+    }
+
+    private void start() {
         new Thread(() -> {
             DroidConnection connection = new DroidConnection(new Device());
             connection.start();
         }).start();
     }
+
 
     private void testClient() {
         new Thread(() -> {

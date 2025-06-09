@@ -2,56 +2,34 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="usbp2p">
+      <SelectionState runConfigName="WIFIAP.AServer">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="screen">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-07-02T07:35:00.869001300Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="Default" identifier="serial=10.16.127.95:33275;connection=baa64ef1" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="scrcpy">
+      <SelectionState runConfigName="WIFIAP.BClient">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="app">
+      <SelectionState runConfigName="WIFIAP.CClient">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="main">
+      <SelectionState runConfigName="WIFIAP.pf">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="BClient">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-07-05T08:20:25.964600700Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=202312190928122" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="AServer">
+      <SelectionState runConfigName="WIFIAP.screen">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="cclient">
+      <SelectionState runConfigName="WIFIAP.Simplesshd">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="CClient">
+      <SelectionState runConfigName="WIFIAP.Androidfrpc">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Simplesshd">
+      <SelectionState runConfigName="WIFIAP.usbp2p">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Androidfrpc">
+      <SelectionState runConfigName="WIFIAP.scrcpy">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="pf">
+      <SelectionState runConfigName="WIFIAP.app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

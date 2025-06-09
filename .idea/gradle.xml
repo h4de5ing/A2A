@@ -4,21 +4,16 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/AServer" />
-            <option value="$PROJECT_DIR$/Androidfrpc" />
             <option value="$PROJECT_DIR$/BClient" />
             <option value="$PROJECT_DIR$/CClient" />
-            <option value="$PROJECT_DIR$/Simplesshd" />
-            <option value="$PROJECT_DIR$/pf" />
-            <option value="$PROJECT_DIR$/screen" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

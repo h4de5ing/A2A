@@ -38,7 +38,7 @@ https://gitlab.com/las2mile/scrcpy-android
 Android实现录屏直播（三）MediaProjection + VirtualDisplay + librtmp + MediaCodec实现视频编码并推流到rtmp服务器  
 https://www.cnblogs.com/raomengyang/p/6544908.html  
 https://github.com/myrao/ScreenRecorder
-
+https://github.com/LxzBUG/ScreenShare  一行代码实现Android屏幕采集并编码H264
 基于WebRTC 屏幕串流
 https://github.com/dkrivoruchko/ScreenStream
 Android官方的录屏 MediaRecorder

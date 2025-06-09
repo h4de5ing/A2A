@@ -14,7 +14,7 @@ public final class DroidConnection extends Thread {
     public void run() {
         super.run();
         try {
-            Socket socket = new Socket("10.18.16.118", 7000);
+            Socket socket = new Socket("10.18.16.247", 8002);
             Ln.d(">>>>>>Client connect success<<<<<<" + socket.getRemoteSocketAddress());
             new PullEventThread(mDdevice, socket).start();
             new PushVideoThread(mDdevice, socket).start();
