@@ -163,6 +163,7 @@ public class ScreenEncoder implements Device.RotationListener {
                         }
                         VideoPacket packet = new VideoPacket(type, flag, bufferInfo.presentationTimeUs, b);
                         outputStream.write(packet.toByteArray());
+                        Conts.frameCount++;
                     }
                 }
             } finally {

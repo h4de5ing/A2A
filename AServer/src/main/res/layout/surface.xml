@@ -19,6 +19,16 @@
         tools:text="127.0.0.1" />
 
     <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ip"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="20sp"
+        tools:text="帧率" />
+
+    <TextView
         android:id="@+id/cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,5 +36,5 @@
         android:padding="20dp"
         android:text="@android:string/cancel"
         android:textColor="@android:color/holo_red_dark"
-        android:textSize="20sp"/>
+        android:textSize="20sp" />
 </RelativeLayout>

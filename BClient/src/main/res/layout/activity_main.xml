@@ -15,4 +15,13 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
         android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ip"
+        android:gravity="center"
+        android:text="测试"
+        android:textSize="20sp" />
 </RelativeLayout>

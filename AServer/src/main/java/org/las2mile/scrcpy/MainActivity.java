@@ -50,6 +50,13 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                     count--;
                     try {
                         Thread.sleep(100);
+                        runOnUiThread(() -> {
+                            try {
+                                tv.setText("" + Conts.frameCount);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -96,7 +103,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         setContentView(R.layout.activity_main);
         Button startButton = findViewById(R.id.button_start);
         TextView ip = findViewById(R.id.ip);
-//        ip.setText("本机IP:" + Tools.getMyIp());
+        ip.setText("本机IP:" + Tools.getMyIp());
         startButton.setOnClickListener(v -> {
             getAttributes();
             if (!serverAdr.isEmpty()) {
@@ -133,9 +140,12 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         screenWidth = temp;
     }
 
+    private TextView tv;
+
     @SuppressLint("ClickableViewAccessibility")
     private void mirrorScreen() {
         setContentView(R.layout.surface);
+        tv = findViewById(R.id.tv);
         final View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         surfaceView = findViewById(R.id.decoder_surface);

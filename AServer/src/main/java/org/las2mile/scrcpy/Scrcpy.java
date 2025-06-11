@@ -180,6 +180,7 @@ public class Scrcpy extends Service {
                                     // need close stream
                                 } else {
                                     videoDecoder.decodeSample(data, 0, data.length, videoPacket.flag.getFlag());
+                                    Conts.frameCount++;
                                 }
                                 first_time = false;
                             }
