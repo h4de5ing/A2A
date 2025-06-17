@@ -223,8 +223,8 @@ public class ScreenEncoder implements Device.RotationListener {
     }
 
     public void streamScreen(Device device, SocketChannel fd) throws IOException {
-        Workarounds.prepareMainLooper();
-        Workarounds.fillAppInfo();
+//        Workarounds.prepareMainLooper();
+//        Workarounds.fillAppInfo();
 
         device.setRotationListener(this);
         boolean alive;

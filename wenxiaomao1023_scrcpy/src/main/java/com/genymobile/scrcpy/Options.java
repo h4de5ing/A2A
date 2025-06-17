@@ -113,4 +113,22 @@ public class Options {
     public void setDumpHierarchy(boolean dumpHierarchy) {
         this.dumpHierarchy = dumpHierarchy;
     }
+
+    @Override
+    public String toString() {
+        return "Options{" +
+                "maxSize=" + maxSize +
+                ", bitRate=" + bitRate +
+                ", maxFps=" + maxFps +
+                ", tunnelForward=" + tunnelForward +
+                ", crop=" + crop +
+                ", sendFrameMeta=" + sendFrameMeta +
+                ", control=" + control +
+                ", quality=" + quality +
+                ", scale=" + scale +
+                ", controlOnly=" + controlOnly +
+                ", nalu=" + nalu +
+                ", dumpHierarchy=" + dumpHierarchy +
+                '}';
+    }
 }

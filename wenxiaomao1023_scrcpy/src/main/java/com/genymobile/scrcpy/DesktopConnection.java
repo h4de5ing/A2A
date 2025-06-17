@@ -1,6 +1,5 @@
 package com.genymobile.scrcpy;
 
-import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 
@@ -9,13 +8,8 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-
 import java.net.Socket;
-import java.net.ServerSocket;
-import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
-import java.nio.channels.ServerSocketChannel;
 
 public final class DesktopConnection implements Closeable {
 
@@ -52,39 +46,8 @@ public final class DesktopConnection implements Closeable {
         return localSocket;
     }
 
-    public static DesktopConnection open(Device device, boolean tunnelForward) throws IOException {
-        SocketChannel videoSocket = null;
-        SocketChannel controlSocket = null;
-        if (tunnelForward) {
-            ServerSocketChannel localServerSocket = ServerSocketChannel.open();
-            localServerSocket.socket().bind(new InetSocketAddress(SOCKET_PORT));
-            try {
-                videoSocket = localServerSocket.accept();
-                // send one byte so the client may read() to detect a connection error
-//                videoSocket.getOutputStream().write(0);//wen disable
-                try {
-                    controlSocket = localServerSocket.accept();
-                } catch (IOException | RuntimeException e) {
-                    videoSocket.close();
-                    throw e;
-                }
-            } finally {
-                localServerSocket.close();
-            }
-        } else {
-//            videoSocket = connect(SOCKET_NAME);
-//            try {
-//                controlSocket = connect(SOCKET_NAME);
-//            } catch (IOException | RuntimeException e) {
-//                videoSocket.close();
-//                throw e;
-//            }
-        }
-
-        DesktopConnection connection = new DesktopConnection(videoSocket, controlSocket);
-        Size videoSize = device.getScreenInfo().getVideoSize();
-//        connection.send(Device.getDeviceName(), videoSize.getWidth(), videoSize.getHeight());//wen disable
-        return connection;
+    public static DesktopConnection open(Device device, SocketChannel videoSocket, SocketChannel controlSocket) throws IOException {
+        return new DesktopConnection(videoSocket, controlSocket);
     }
 
     public void close() throws IOException {
@@ -96,21 +59,6 @@ public final class DesktopConnection implements Closeable {
         controlSocket.close();
     }
 
-//    @SuppressWarnings("checkstyle:MagicNumber")
-//    private void send(String deviceName, int width, int height) throws IOException {
-//        byte[] buffer = new byte[DEVICE_NAME_FIELD_LENGTH + 4];
-//
-//        byte[] deviceNameBytes = deviceName.getBytes(StandardCharsets.UTF_8);
-//        int len = StringUtils.getUtf8TruncationIndex(deviceNameBytes, DEVICE_NAME_FIELD_LENGTH - 1);
-//        System.arraycopy(deviceNameBytes, 0, buffer, 0, len);
-//        // byte[] are always 0-initialized in java, no need to set '\0' explicitly
-//
-//        buffer[DEVICE_NAME_FIELD_LENGTH] = (byte) (width >> 8);
-//        buffer[DEVICE_NAME_FIELD_LENGTH + 1] = (byte) width;
-//        buffer[DEVICE_NAME_FIELD_LENGTH + 2] = (byte) (height >> 8);
-//        buffer[DEVICE_NAME_FIELD_LENGTH + 3] = (byte) height;
-//        IO.writeFully(videoFd, buffer, 0, buffer.length);
-//    }
 
     public FileDescriptor getVideoFd() {
         return videoFd;

@@ -1,19 +1,14 @@
 package com.genymobile.scrcpy;
 
 import android.graphics.Rect;
-import android.media.MediaCodec;
 import android.os.Build;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.System;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileDescriptor;
-
 import android.os.Handler;
 
 import com.android.scrcpy.v2.BuildConfig;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
 
 public final class Server {
 
@@ -24,12 +19,11 @@ public final class Server {
         // not instantiable
     }
 
-    private static void scrcpy(Options options) throws IOException {
-        AccessibilityNodeInfoDumper dumper = null;
+    public static void scrcpy(Options options, SocketChannel videoSocket, SocketChannel controlSocket) throws IOException {
+        AccessibilityNodeInfoDumper dumper;
         final Device device = new Device(options);
-        boolean tunnelForward = options.isTunnelForward();
 
-        try (DesktopConnection connection = DesktopConnection.open(device, tunnelForward)) {
+        try (DesktopConnection connection = DesktopConnection.open(device, videoSocket, controlSocket)) {
             ScreenEncoder screenEncoder = new ScreenEncoder(options, device);
             handler = screenEncoder.getHandler();
             if (options.getControl()) {
@@ -52,42 +46,36 @@ public final class Server {
                 Ln.i("exit: " + e.getMessage());
                 //do exit(0)
             } finally {
-                if (options.getDumpHierarchy() && dumper != null) {
-                    dumper.stop();
-                }
-                // this is expected on close
-                Ln.d("Screen streaming stopped");
-                System.exit(0);
+//                if (options.getDumpHierarchy() && dumper != null) {
+//                    dumper.stop();
+//                }
+//                // this is expected on close
+//                Ln.d("Screen streaming stopped");
+//                System.exit(0);
             }
 
         }
     }
 
     private static void startController(final Controller controller) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    controller.control();
-                } catch (IOException e) {
-                    // this is expected on close
-                    Ln.d("Controller stopped");
-                    Common.stopScrcpy(handler, "control");
-                }
+        new Thread(() -> {
+            try {
+                controller.control();
+            } catch (IOException e) {
+                // this is expected on close
+                Ln.d("Controller stopped");
+                Common.stopScrcpy(handler, "control");
             }
         }).start();
     }
 
     private static void startDeviceMessageSender(final DeviceMessageSender sender) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    sender.loop();
-                } catch (IOException | InterruptedException e) {
-                    // this is expected on close
-                    Ln.d("Device message sender stopped");
-                }
+        new Thread(() -> {
+            try {
+                sender.loop();
+            } catch (IOException | InterruptedException e) {
+                // this is expected on close
+                Ln.d("Device message sender stopped");
             }
         }).start();
     }
@@ -101,8 +89,7 @@ public final class Server {
         String clientVersion = args[0];
         Ln.i("VERSION_NAME: " + BuildConfig.VERSION_NAME);
         if (!clientVersion.equals(BuildConfig.VERSION_NAME)) {
-            throw new IllegalArgumentException(
-                    "The server version (" + clientVersion + ") does not match the client " + "(" + BuildConfig.VERSION_NAME + ")");
+            throw new IllegalArgumentException("The server version (" + clientVersion + ") does not match the client " + "(" + BuildConfig.VERSION_NAME + ")");
         }
 
         if (args.length != 8) {
@@ -136,7 +123,7 @@ public final class Server {
         return options;
     }
 
-    private static Options customOptions(String... args) {
+    public static Options customOptions(String... args) {
         org.apache.commons.cli.CommandLine commandLine = null;
         org.apache.commons.cli.CommandLineParser parser = new org.apache.commons.cli.BasicParser();
         org.apache.commons.cli.Options options = new org.apache.commons.cli.Options();
@@ -155,18 +142,7 @@ public final class Server {
         }
 
         if (commandLine.hasOption('h')) {
-            System.out.println(
-                    "Usage: [-h]\n\n"
-                            + "jpeg:\n"
-                            + "  -r <value>:    Frame rate (frames/sec).\n"
-                            + "  -P <value>:    Display projection (1080, 720, 480, 360...).\n"
-                            + "  -Q <value>:    JPEG quality (0-100).\n"
-                            + "\n"
-                            + "  -c:            Control only.\n"
-                            + "  -L:            Library path.\n"
-                            + "  -D:            Dump window hierarchy.\n"
-                            + "  -h:            Show help.\n"
-            );
+            System.out.println("Usage: [-h]\n\n" + "jpeg:\n" + "  -r <value>:    Frame rate (frames/sec).\n" + "  -P <value>:    Display projection (1080, 720, 480, 360...).\n" + "  -Q <value>:    JPEG quality (0-100).\n" + "\n" + "  -c:            Control only.\n" + "  -L:            Library path.\n" + "  -D:            Dump window hierarchy.\n" + "  -h:            Show help.\n");
             System.exit(0);
         }
         if (commandLine.hasOption('L')) {
@@ -268,12 +244,9 @@ public final class Server {
     }
 
     public static void main(String... args) throws Exception {
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                Ln.e("Exception on thread " + t, e);
-                suggestFix(e);
-            }
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            Ln.e("Exception on thread " + t, e);
+            suggestFix(e);
         });
 
 //        unlinkSelf();
@@ -283,6 +256,6 @@ public final class Server {
         Ln.i("Options quality: " + options.getQuality() + " (1 ~ 100)");
         Ln.i("Options projection: " + options.getScale() + " (1080, 720, 480, 360...)");
         Ln.i("Options control only: " + options.getControlOnly() + " (true / false)");
-        scrcpy(options);
+//        scrcpy(options);
     }
 }

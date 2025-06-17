@@ -15,9 +15,21 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("D:\\Android12SignerGUI\\SignFiles\\NewPublic\\platform.jks")
+            keyAlias = "android"
+            keyPassword = "android"
+            storePassword = "android"
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

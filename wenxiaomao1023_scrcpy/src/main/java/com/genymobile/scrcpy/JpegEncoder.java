@@ -1,6 +1,5 @@
 package com.genymobile.scrcpy;
 
-import android.graphics.Bitmap;
 import java.nio.ByteBuffer;
 
 public class JpegEncoder {
@@ -8,6 +7,7 @@ public class JpegEncoder {
     static {
         try {
             System.loadLibrary("compress");
+//            System.load("/data/local/tmp/libcompress.so");
         } catch (UnsatisfiedLinkError e1) {
             try {
                 System.load("/data/local/tmp/libturbojpeg.so");
