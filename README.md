@@ -29,9 +29,8 @@ Android 远程控制与投屏方案
 https://github.com/Genymobile/scrcpy  
 https://github.com/barry-ran/QtScrcpy  
 基于网页
-https://github.com/openstf/minicap  废弃
-https://github.com/DeviceFarmer/minicap 后端可以移植这个库2
-https://github.com/openstf/stf  
+https://github.com/DeviceFarmer/minicap Android
+https://github.com/DeviceFarmer/stf   网页端
 修改版本
 https://testerhome.com/topics/21647  
 AServer BClient 修改版本参考源码 

@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="WIFIAP.BClient">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-06-09T02:52:26.078756200Z">
+        <DropdownSelection timestamp="2025-06-11T08:23:31.600725100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=SNT15554545544" />
