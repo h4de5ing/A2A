@@ -27,7 +27,14 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.start_button).setOnClickListener {
             startServer()
         }
+        start()
         startServer()
+    }
+
+    private fun start() {
+        MyWSClient("ws://10.18.16.212:8080/emm_mdm/websocket/123456") {
+            it.logI()
+        }.connectWebSocket()
     }
 
     private fun startServer() {
@@ -38,8 +45,8 @@ class MainActivity : AppCompatActivity() {
             val controlServerSocket = ServerSocketChannel.open()
             controlServerSocket.bind(InetSocketAddress(6612))
             while (true) {
-                var videoSocketChannel: SocketChannel? = null
-                var controlSocketChannel: SocketChannel? = null
+                var videoSocketChannel: SocketChannel?
+                var controlSocketChannel: SocketChannel?
                 try {
                     videoSocketChannel = localServerSocket.accept()
                     println("videoSocketChannel 有设备连接,${videoSocketChannel.socket().inetAddress}")
