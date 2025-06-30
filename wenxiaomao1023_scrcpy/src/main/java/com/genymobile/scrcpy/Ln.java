@@ -28,29 +28,25 @@ public final class Ln {
 
     public static void d(String message) {
         if (isEnabled(Level.DEBUG)) {
-            Log.d(TAG, message);
-            System.out.println(PREFIX + "DEBUG: " + message);
+            Log.d(TAG, PREFIX + "DEBUG: " + message);
         }
     }
 
     public static void i(String message) {
         if (isEnabled(Level.INFO)) {
-            Log.i(TAG, message);
-            System.out.println(PREFIX + "INFO: " + message);
+            Log.i(TAG, PREFIX + "INFO: " + message);
         }
     }
 
     public static void w(String message) {
         if (isEnabled(Level.WARN)) {
-            Log.w(TAG, message);
-            System.out.println(PREFIX + "WARN: " + message);
+            Log.w(TAG, PREFIX + "WARN: " + message);
         }
     }
 
     public static void e(String message, Throwable throwable) {
         if (isEnabled(Level.ERROR)) {
-            Log.e(TAG, message, throwable);
-            System.out.println(PREFIX + "ERROR: " + message);
+            Log.e(TAG, (PREFIX + "ERROR: " + message + throwable));
             if (throwable != null) throwable.printStackTrace();
         }
     }

@@ -18,7 +18,6 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.channels.SocketChannel
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.min
@@ -68,11 +67,8 @@ class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> 
         }
     }
 
-    private inner class ImageAvailableListenerImpl(
-        var fd: SocketChannel?,
-        frameRate: Int,
-        var quality: Int
-    ) : ImageReader.OnImageAvailableListener {
+    private inner class ImageAvailableListenerImpl(frameRate: Int, var quality: Int) :
+        ImageReader.OnImageAvailableListener {
         var type: Int = 0 // 0:libjpeg-turbo 1:bitmap
         var framePeriodMs: Int = 1000 / frameRate
 
@@ -120,11 +116,7 @@ class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> 
                     b.putInt(jpegData.size)
                     b.put(jpegData)
                     jpegSize = b.array()
-                    try {
-                        IO.writeFully(fd, jpegSize, 0, jpegSize.size)
-                    } catch (_: IOException) {
-                        stop("image")
-                    }
+                    change(jpegSize)
                 } catch (e: Exception) {
                     Ln.e("onImageAvailable: " + e.message)
                 } finally {
@@ -142,13 +134,13 @@ class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> 
         }
     }
 
-    fun streamScreen(device: Device, fd: SocketChannel?) {
+    fun streamScreen(device: Device): ScreenEncoder {
         device.setRotationListener(this)
         var alive: Boolean
         try {
-            writeBanner(device, fd, scale)
+            writeBanner(device, scale)
             do {
-                writeRotation(fd)
+                writeRotation()
                 val display: IBinder? = createDisplay()
                 val contentRect = device.screenInfo.contentRect
                 val videoRect = getDesiredSize(contentRect, scale)
@@ -160,8 +152,7 @@ class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> 
                     bImageReaderDisable = false
                 }
                 if (imageAvailableListenerImpl == null) {
-                    imageAvailableListenerImpl =
-                        ImageAvailableListenerImpl(fd, maxFps, quality)
+                    imageAvailableListenerImpl = ImageAvailableListenerImpl(maxFps, quality)
                 }
                 mImageReader?.setOnImageAvailableListener(imageAvailableListenerImpl, handler)
                 val surface = mImageReader?.surface
@@ -188,6 +179,7 @@ class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> 
             mHandlerThread?.quit()
             device.setRotationListener(null)
         }
+        return this
     }
 
     private fun getDesiredSize(contentRect: Rect, resolution: Int): Rect {
@@ -209,21 +201,17 @@ class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> 
         return Rect(0, 0, desiredWidth, desiredHeight)
     }
 
-    private fun writeRotation(fd: SocketChannel?) {
+    private fun writeRotation() {
         val r = ByteBuffer.allocate(8)
         r.order(ByteOrder.LITTLE_ENDIAN)
         r.putInt(4)
         r.putInt(mRotation.get())
         val rArray = r.array()
-        try {
-            IO.writeFully(fd, rArray, 0, rArray.size)
-        } catch (_: IOException) {
-            stop("rotation")
-        }
+        change(rArray)
     }
 
     @Throws(IOException::class)
-    private fun writeBanner(device: Device, fd: SocketChannel?, scale: Int) {
+    private fun writeBanner(device: Device, scale: Int) {
         val bannerSize: Byte = 24
         val version: Byte = 2
         val quirks: Byte = 2
@@ -248,7 +236,7 @@ class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> 
         b.put(orientation) //orientation
         b.put(quirks) //quirks
         val array = b.array()
-        IO.writeFully(fd, array, 0, array.size)
+        change(array)
         Ln.i("banner\n{\n    version: $version\n    size: $bannerSize\n    real width: $realWidth\n    real height: $realHeight\n    desired width: $desiredWidth\n    desired height: $desiredHeight\n    orientation: $orientation\n    quirks: $quirks\n}\n")
     }
 

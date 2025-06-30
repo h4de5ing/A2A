@@ -12,6 +12,7 @@ import com.genymobile.scrcpy.Ln
 import com.genymobile.scrcpy.ScreenEncoder
 import java.io.IOException
 import java.net.InetSocketAddress
+import java.nio.ByteBuffer
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 
@@ -57,14 +58,14 @@ class MainActivity : AppCompatActivity() {
                     videoSocketChannel = localServerSocket.accept()
                     println("videoSocketChannel 有设备连接,${videoSocketChannel.socket().inetAddress}")
                     if (videoSocketChannel != null) {
-                        val options = com.genymobile.scrcpy.Options()
-                        println(options.toString())
-                        val device = Device(options)
-                        val screenEncoder = ScreenEncoder(options, device.rotation)
                         try {
-                            screenEncoder.streamScreen(device, videoSocketChannel)
+                            val options = com.genymobile.scrcpy.Options()
+                            val device = Device(options)
+                            ScreenEncoder(options, device.rotation) {
+                                videoSocketChannel.write(ByteBuffer.wrap(it, 0, it.size))
+                            }.streamScreen(device)
                         } catch (e: IOException) {
-                            Ln.i("exit: " + e.message)
+                            Ln.e("exit: " + e.message)
                         }
                     }
                 } catch (e: Exception) {
