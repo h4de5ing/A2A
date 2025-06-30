@@ -16,20 +16,13 @@ public final class Server {
     private static Handler handler;
 
     private Server() {
-        // not instantiable
     }
 
-    public static void scrcpy(Options options, SocketChannel videoSocket, SocketChannel controlSocket) throws IOException {
+    public static void scrcpy(Options options, SocketChannel videoSocket) throws IOException {
         final Device device = new Device(options);
-
-        try (DesktopConnection connection = DesktopConnection.open(device, videoSocket, controlSocket)) {
+        try (DesktopConnection connection = DesktopConnection.open(videoSocket)) {
             ScreenEncoder screenEncoder = new ScreenEncoder(options, device);
             handler = screenEncoder.getHandler();
-            if (options.getControl()) {
-                Controller controller = new Controller(device, connection);
-                startController(controller);
-                startDeviceMessageSender(controller.getSender());
-            }
             try {
                 screenEncoder.streamScreen(device, connection.getVideoChannel());
             } catch (IOException e) {
@@ -38,26 +31,6 @@ public final class Server {
         }
     }
 
-    private static void startController(final Controller controller) {
-        new Thread(() -> {
-            try {
-                controller.control();
-            } catch (IOException e) {
-                Ln.d("Controller stopped");
-                Common.stopScrcpy(handler, "control");
-            }
-        }).start();
-    }
-
-    private static void startDeviceMessageSender(final DeviceMessageSender sender) {
-        new Thread(() -> {
-            try {
-                sender.loop();
-            } catch (IOException | InterruptedException e) {
-                Ln.d("Device message sender stopped");
-            }
-        }).start();
-    }
 
     @SuppressWarnings("checkstyle:MagicNumber")
     private static Options createOptions(String... args) {
@@ -91,10 +64,6 @@ public final class Server {
 
         boolean sendFrameMeta = Boolean.parseBoolean(args[6]);
         options.setSendFrameMeta(sendFrameMeta);
-
-        boolean control = Boolean.parseBoolean(args[7]);
-        options.setControl(control);
-
         return options;
     }
 
@@ -127,7 +96,6 @@ public final class Server {
         Options o = new Options();
         o.setMaxSize(0);
         o.setCrop(null);
-        o.setControl(true);
         // global
         o.setMaxFps(24);
         o.setScale(480);

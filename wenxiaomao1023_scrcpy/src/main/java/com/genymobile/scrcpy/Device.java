@@ -1,28 +1,18 @@
 package com.genymobile.scrcpy;
 
+import android.graphics.Rect;
+import android.view.IRotationWatcher;
+
 import com.android.scrcpy.v2.BuildConfig;
 import com.genymobile.scrcpy.wrappers.ServiceManager;
-import com.genymobile.scrcpy.wrappers.SurfaceControl;
-import com.genymobile.scrcpy.wrappers.WindowManager;
-
-import android.graphics.Rect;
-import android.os.Build;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.view.IRotationWatcher;
-import android.view.InputEvent;
 
 public final class Device {
-
-    public static final int POWER_MODE_OFF = SurfaceControl.POWER_MODE_OFF;
-    public static final int POWER_MODE_NORMAL = SurfaceControl.POWER_MODE_NORMAL;
 
     public interface RotationListener {
         void onRotationChanged(int rotation);
     }
 
     private final ServiceManager serviceManager = new ServiceManager();
-
     private ScreenInfo screenInfo;
     private RotationListener rotationListener;
 
@@ -30,14 +20,10 @@ public final class Device {
         screenInfo = computeScreenInfo(options.getCrop(), options.getMaxSize());
         registerRotationWatcher(new IRotationWatcher.Stub() {
             @Override
-            public void onRotationChanged(int rotation) throws RemoteException {
+            public void onRotationChanged(int rotation) {
                 synchronized (Device.this) {
                     screenInfo = screenInfo.withRotation(rotation);
-
-                    // notify
-                    if (rotationListener != null) {
-                        rotationListener.onRotationChanged(rotation);
-                    }
+                    if (rotationListener != null) rotationListener.onRotationChanged(rotation);
                 }
             }
         });
@@ -100,37 +86,6 @@ public final class Device {
         return new Size(w, h);
     }
 
-    public Point getPhysicalPoint(Position position) {
-        // it hides the field on purpose, to read it with a lock
-        @SuppressWarnings("checkstyle:HiddenField")
-        ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
-        Size videoSize = screenInfo.getVideoSize();
-        Size clientVideoSize = position.getScreenSize();
-        if (!videoSize.equals(clientVideoSize)) {
-            Ln.i("video width: " + videoSize.getWidth() + ", video height: " + videoSize.getHeight());
-            Ln.i("client width: " + clientVideoSize.getWidth() + ", client height: " + clientVideoSize.getHeight());
-            // The client sends a click relative to a video with wrong dimensions,
-            // the device may have been rotated since the event was generated, so ignore the event
-            return null;
-        }
-        Rect contentRect = screenInfo.getContentRect();
-        Point point = position.getPoint();
-        int scaledX = contentRect.left + point.getX() * contentRect.width() / videoSize.getWidth();
-        int scaledY = contentRect.top + point.getY() * contentRect.height() / videoSize.getHeight();
-        return new Point(scaledX, scaledY);
-    }
-
-    public static String getDeviceName() {
-        return Build.MODEL;
-    }
-
-    public boolean injectInputEvent(InputEvent inputEvent, int mode) {
-        return serviceManager.getInputManager().injectInputEvent(inputEvent, mode);
-    }
-
-    public boolean isScreenOn() {
-        return serviceManager.getPowerManager().isScreenOn();
-    }
 
     public void registerRotationWatcher(IRotationWatcher rotationWatcher) {
         serviceManager.getWindowManager().registerRotationWatcher(rotationWatcher);
@@ -140,62 +95,8 @@ public final class Device {
         this.rotationListener = rotationListener;
     }
 
-    public void expandNotificationPanel() {
-        serviceManager.getStatusBarManager().expandNotificationsPanel();
-    }
 
-    public void collapsePanels() {
-        serviceManager.getStatusBarManager().collapsePanels();
-    }
-
-    public String getClipboardText() {
-        CharSequence s = serviceManager.getClipboardManager().getText();
-        if (s == null) {
-            return null;
-        }
-        return s.toString();
-    }
-
-    public void setClipboardText(String text) {
-        serviceManager.getClipboardManager().setText(text);
-        Ln.i("Device clipboard set");
-    }
-
-    /**
-     * @param mode one of the {@code SCREEN_POWER_MODE_*} constants
-     */
-    public void setScreenPowerMode(int mode) {
-        IBinder d = SurfaceControl.getBuiltInDisplay();
-        if (d == null) {
-            Ln.e("Could not get built-in display");
-            return;
-        }
-        SurfaceControl.setDisplayPowerMode(d, mode);
-        Ln.i("Device screen turned " + (mode == Device.POWER_MODE_OFF ? "off" : "on"));
-    }
-
-    /**
-     * Disable auto-rotation (if enabled), set the screen rotation and re-enable auto-rotation (if it was enabled).
-     */
-    public void rotateDevice() {
-        WindowManager wm = serviceManager.getWindowManager();
-
-        boolean accelerometerRotation = !wm.isRotationFrozen();
-
-        int currentRotation = wm.getRotation();
-        int newRotation = (currentRotation & 1) ^ 1; // 0->1, 1->0, 2->1, 3->0
-        String newRotationString = newRotation == 0 ? "portrait" : "landscape";
-
-        Ln.i("Device rotation requested: " + newRotationString);
-        wm.freezeRotation(newRotation);
-
-        // restore auto-rotate if necessary
-        if (accelerometerRotation) {
-            wm.thawRotation();
-        }
-    }
-
-    static Rect flipRect(Rect crop) {
+    public static Rect flipRect(Rect crop) {
         return new Rect(crop.top, crop.left, crop.bottom, crop.right);
     }
 

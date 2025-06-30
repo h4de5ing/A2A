@@ -2,14 +2,12 @@ package com.genymobile.scrcpy;
 
 import com.android.scrcpy.v2.BuildConfig;
 
-import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public final class IO {
     private IO() {
-        // not instantiable
     }
 
     public synchronized static void writeFully(SocketChannel channel, ByteBuffer from) throws IOException {

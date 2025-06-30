@@ -20,7 +20,6 @@ public final class Ln {
     private static final Level THRESHOLD = BuildConfig.DEBUG ? Level.DEBUG : Level.INFO;
 
     private Ln() {
-        // not instantiable
     }
 
     public static boolean isEnabled(Level level) {
@@ -52,9 +51,7 @@ public final class Ln {
         if (isEnabled(Level.ERROR)) {
             Log.e(TAG, message, throwable);
             System.out.println(PREFIX + "ERROR: " + message);
-            if (throwable != null) {
-                throwable.printStackTrace();
-            }
+            if (throwable != null) throwable.printStackTrace();
         }
     }
 

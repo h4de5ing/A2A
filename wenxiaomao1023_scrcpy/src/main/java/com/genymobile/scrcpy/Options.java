@@ -8,7 +8,6 @@ public class Options {
     private int maxFps;
     private Rect crop;
     private boolean sendFrameMeta; // send PTS so that the client may record properly
-    private boolean control;
 
     private int quality;
     private int scale;
@@ -56,13 +55,6 @@ public class Options {
         this.sendFrameMeta = sendFrameMeta;
     }
 
-    public boolean getControl() {
-        return control;
-    }
-
-    public void setControl(boolean control) {
-        this.control = control;
-    }
 
     public int getQuality() {
         return quality;
@@ -112,7 +104,6 @@ public class Options {
                 ", maxFps=" + maxFps +
                 ", crop=" + crop +
                 ", sendFrameMeta=" + sendFrameMeta +
-                ", control=" + control +
                 ", quality=" + quality +
                 ", scale=" + scale +
                 ", controlOnly=" + controlOnly +

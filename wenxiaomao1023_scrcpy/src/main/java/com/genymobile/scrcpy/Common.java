@@ -1,7 +1,7 @@
 package com.genymobile.scrcpy;
 
-import android.os.Message;
 import android.os.Handler;
+import android.os.Message;
 
 public class Common {
 
@@ -11,8 +11,8 @@ public class Common {
         msg.obj = obj;
         try {
             handler.sendMessage(msg);
-        } catch (java.lang.IllegalStateException e) {
-
+        } catch (IllegalStateException e) {
+            e.fillInStackTrace();
         }
     }
 }

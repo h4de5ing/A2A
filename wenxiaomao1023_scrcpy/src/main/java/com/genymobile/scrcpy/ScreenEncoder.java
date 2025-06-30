@@ -223,9 +223,6 @@ public class ScreenEncoder implements Device.RotationListener {
     }
 
     public void streamScreen(Device device, SocketChannel fd) throws IOException {
-//        Workarounds.prepareMainLooper();
-//        Workarounds.fillAppInfo();
-
         device.setRotationListener(this);
         boolean alive;
         try {
@@ -312,7 +309,7 @@ public class ScreenEncoder implements Device.RotationListener {
         r.putInt(mRotation.get());
         byte[] rArray = r.array();
         try {
-            IO.writeFully(fd, rArray, 0, rArray.length);// IOException
+            IO.writeFully(fd, rArray, 0, rArray.length);
         } catch (IOException e) {
             Common.stopScrcpy(getHandler(), "rotation");
         }

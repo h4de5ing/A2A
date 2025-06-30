@@ -41,20 +41,15 @@ class MainActivity : AppCompatActivity() {
         Thread {
             val localServerSocket = ServerSocketChannel.open()
             localServerSocket.bind(InetSocketAddress(1717))
-
-            val controlServerSocket = ServerSocketChannel.open()
-            controlServerSocket.bind(InetSocketAddress(6612))
             while (true) {
                 var videoSocketChannel: SocketChannel?
-                var controlSocketChannel: SocketChannel?
                 try {
                     videoSocketChannel = localServerSocket.accept()
                     println("videoSocketChannel 有设备连接,${videoSocketChannel.socket().inetAddress}")
-                    controlSocketChannel = controlServerSocket.accept()
-                    if (videoSocketChannel != null && controlSocketChannel != null) {
+                    if (videoSocketChannel != null) {
                         val options = Server.customOptions()
                         println(options.toString())
-                        Server.scrcpy(options, videoSocketChannel, controlSocketChannel)
+                        Server.scrcpy(options, videoSocketChannel)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

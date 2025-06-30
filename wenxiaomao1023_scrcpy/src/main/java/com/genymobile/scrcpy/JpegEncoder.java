@@ -7,15 +7,8 @@ public class JpegEncoder {
     static {
         try {
             System.loadLibrary("compress");
-//            System.load("/data/local/tmp/libcompress.so");
-        } catch (UnsatisfiedLinkError e1) {
-            try {
-                System.load("/data/local/tmp/libturbojpeg.so");
-                System.load("/data/local/tmp/libcompress.so");
-            } catch (UnsatisfiedLinkError e2) {
-                Ln.e("UnsatisfiedLinkError: " + e2.getMessage());
-                System.exit(1);
-            }
+        } catch (UnsatisfiedLinkError e) {
+            e.printStackTrace();
         }
     }
 
