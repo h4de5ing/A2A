@@ -70,10 +70,6 @@ public class ScreenEncoder implements Device.RotationListener {
         }
     }
 
-    public boolean consumeRotationChange() {
-        return rotationChanged.getAndSet(false);
-    }
-
     private class ImageAvailableListenerImpl implements ImageReader.OnImageAvailableListener {
         Handler handler;
         SocketChannel fd;

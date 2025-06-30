@@ -11,9 +11,6 @@ import java.lang.reflect.Method;
 public final class WindowManager {
     private final IInterface manager;
     private Method getRotationMethod;
-    private Method freezeRotationMethod;
-    private Method isRotationFrozenMethod;
-    private Method thawRotationMethod;
 
     public WindowManager(IInterface manager) {
         this.manager = manager;
@@ -32,27 +29,6 @@ public final class WindowManager {
             }
         }
         return getRotationMethod;
-    }
-
-    private Method getFreezeRotationMethod() throws NoSuchMethodException {
-        if (freezeRotationMethod == null) {
-            freezeRotationMethod = manager.getClass().getMethod("freezeRotation", int.class);
-        }
-        return freezeRotationMethod;
-    }
-
-    private Method getIsRotationFrozenMethod() throws NoSuchMethodException {
-        if (isRotationFrozenMethod == null) {
-            isRotationFrozenMethod = manager.getClass().getMethod("isRotationFrozen");
-        }
-        return isRotationFrozenMethod;
-    }
-
-    private Method getThawRotationMethod() throws NoSuchMethodException {
-        if (thawRotationMethod == null) {
-            thawRotationMethod = manager.getClass().getMethod("thawRotation");
-        }
-        return thawRotationMethod;
     }
 
     public int getRotation() {

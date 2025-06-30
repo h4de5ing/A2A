@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.genymobile.scrcpy.DesktopConnection
 import com.genymobile.scrcpy.Device
 import com.genymobile.scrcpy.Ln
 import com.genymobile.scrcpy.ScreenEncoder
@@ -33,6 +32,13 @@ class MainActivity : AppCompatActivity() {
         }
         start()
         startServer()
+//        val iWindow = IWindowManager.Stub.asInterface(ServiceManager.getService("window"))
+//        iWindow.defaultDisplayRotation
+//        iWindow.watchRotation(object : android.view.IRotationWatcher.Default() {})
+
+
+//        val iDisplay = IDisplayManager.Stub.asInterface(ServiceManager.getService("display"))
+//        iDisplay.getDisplayInfo(0)
     }
 
     private fun start() {
@@ -54,13 +60,11 @@ class MainActivity : AppCompatActivity() {
                         val options = com.genymobile.scrcpy.Options()
                         println(options.toString())
                         val device = Device(options)
-                        DesktopConnection.open(videoSocketChannel).use { connection ->
-                            val screenEncoder = ScreenEncoder(options, device.rotation)
-                            try {
-                                screenEncoder.streamScreen(device, connection.videoChannel)
-                            } catch (e: IOException) {
-                                Ln.i("exit: " + e.message)
-                            }
+                        val screenEncoder = ScreenEncoder(options, device.rotation)
+                        try {
+                            screenEncoder.streamScreen(device, videoSocketChannel)
+                        } catch (e: IOException) {
+                            Ln.i("exit: " + e.message)
                         }
                     }
                 } catch (e: Exception) {
