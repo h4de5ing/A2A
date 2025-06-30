@@ -1,31 +1,15 @@
-package com.genymobile.scrcpy;
+package com.genymobile.scrcpy
 
-import android.graphics.Rect;
+import android.graphics.Rect
 
-public final class ScreenInfo {
-    private final Rect contentRect; // device size, possibly cropped
-    private final Size videoSize;
-    private final boolean rotated;
-
-    public ScreenInfo(Rect contentRect, Size videoSize, boolean rotated) {
-        this.contentRect = contentRect;
-        this.videoSize = videoSize;
-        this.rotated = rotated;
-    }
-
-    public Rect getContentRect() {
-        return contentRect;
-    }
-
-    public Size getVideoSize() {
-        return videoSize;
-    }
-
-    public ScreenInfo withRotation(int rotation) {
-        boolean newRotated = (rotation & 1) != 0;
-        if (rotated == newRotated) {
-            return this;
-        }
-        return new ScreenInfo(Device.flipRect(contentRect), videoSize.rotate(), newRotated);
+class ScreenInfo(
+    val contentRect: Rect,// device size, possibly cropped
+    val videoSize: Size,
+    val rotated: Boolean
+) {
+    fun withRotation(rotation: Int): ScreenInfo {
+        val newRotated = (rotation and 1) != 0
+        if (rotated == newRotated) return this
+        return ScreenInfo(Device.flipRect(contentRect), videoSize.rotate(), newRotated)
     }
 }

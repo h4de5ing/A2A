@@ -1,299 +1,284 @@
-package com.genymobile.scrcpy;
+package com.genymobile.scrcpy
 
-import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.media.Image;
-import android.media.ImageReader;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Process;
-import android.view.Surface;
+import android.graphics.Bitmap
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.media.Image
+import android.media.ImageReader
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.IBinder
+import android.os.Message
+import android.os.Process
+import android.view.Surface
+import androidx.core.graphics.createBitmap
+import com.genymobile.scrcpy.Device.RotationListener
+import com.genymobile.scrcpy.wrappers.SurfaceControl
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.channels.SocketChannel
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.min
 
-import androidx.annotation.NonNull;
+class ScreenEncoder(options: Options, rotation: Int, val change: (ByteArray) -> Unit = {}) :
+    RotationListener {
+    private val rotationChanged = AtomicBoolean()
+    private val mRotation = AtomicInteger(0)
+    private val maxFps: Int = options.maxFps
+    private val quality: Int = options.quality
+    private val scale: Int = options.scale
+    private val handler: Handler
+    private val mHandlerThread: HandlerThread?
+    private var imageAvailableListenerImpl: ImageReader.OnImageAvailableListener? = null
 
-import com.genymobile.scrcpy.wrappers.SurfaceControl;
+    private val rotationLock = Any()
+    private val imageReaderLock = Any()
+    private var bImageReaderDisable = true //Segmentation fault
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+    @get:Synchronized
+    @set:Synchronized
+    private var alive = true
 
-public class ScreenEncoder implements Device.RotationListener {
-    private final AtomicBoolean rotationChanged = new AtomicBoolean();
-    private final AtomicInteger mRotation = new AtomicInteger(0);
-    private final int maxFps;
-    private final int quality;
-    private final int scale;
-    private final Handler mHandler;
-    private final HandlerThread mHandlerThread;
-    private ImageReader.OnImageAvailableListener imageAvailableListenerImpl;
-
-    private final Object rotationLock = new Object();
-    private final Object imageReaderLock = new Object();
-    private boolean bImageReaderDisable = true;//Segmentation fault
-    private boolean alive = true;
-
-    public ScreenEncoder(Options options, int rotation) {
-        this.quality = options.getQuality();
-        this.maxFps = options.getMaxFps();
-        this.scale = options.getScale();
-        mRotation.set(rotation);
-        mHandlerThread = new HandlerThread("ScrcpyImageReaderHandlerThread");
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper()) {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                Ln.i("hander message: " + msg);
-                if (msg.what == 1) {//exit
-                    setAlive(false);
-                    synchronized (rotationLock) {
-                        rotationLock.notify();
+    init {
+        mRotation.set(rotation)
+        mHandlerThread = HandlerThread("ScrcpyImageReaderHandlerThread")
+        mHandlerThread.start()
+        handler = object : Handler(mHandlerThread.looper) {
+            override fun handleMessage(msg: Message) {
+                Ln.i("handler message: $msg")
+                if (msg.what == 1) { //exit
+                    alive = false
+                    synchronized(rotationLock) {
+                        (rotationLock as Object).notify()
                     }
                 }
             }
-        };
-    }
-
-    @Override
-    public void onRotationChanged(int rotation) {
-        Ln.i("rotation: " + rotation);
-        mRotation.set(rotation);
-        rotationChanged.set(true);
-        synchronized (rotationLock) {
-            rotationLock.notify();
         }
     }
 
-    private class ImageAvailableListenerImpl implements ImageReader.OnImageAvailableListener {
-        Handler handler;
-        SocketChannel fd;
-        Device device;
-        int type = 0;// 0:libjpeg-turbo 1:bitmap
-        int quality;
-        int framePeriodMs;
-
-        int count = 0;
-        long lastTime = System.currentTimeMillis();
-        long timeA = lastTime;
-
-        public ImageAvailableListenerImpl(Handler handler, Device device, SocketChannel fd, int frameRate, int quality) {
-            this.handler = handler;
-            this.fd = fd;
-            this.device = device;
-            this.quality = quality;
-            this.framePeriodMs = 1000 / frameRate;
+    override fun onRotationChanged(rotation: Int) {
+        Ln.i("rotation: $rotation")
+        mRotation.set(rotation)
+        rotationChanged.set(true)
+        synchronized(rotationLock) {
+            (rotationLock as Object).notify()
         }
+    }
 
-        @Override
-        public void onImageAvailable(ImageReader imageReader) {
-            byte[] jpegData = null;
-            byte[] jpegSize = null;
-            Image image = null;
+    private inner class ImageAvailableListenerImpl(
+        var fd: SocketChannel?,
+        frameRate: Int,
+        var quality: Int
+    ) : ImageReader.OnImageAvailableListener {
+        var type: Int = 0 // 0:libjpeg-turbo 1:bitmap
+        var framePeriodMs: Int = 1000 / frameRate
 
-            synchronized (imageReaderLock) {
+        var count: Int = 0
+        var lastTime: Long = System.currentTimeMillis()
+        var timeA: Long = lastTime
+
+        override fun onImageAvailable(imageReader: ImageReader) {
+            var jpegData: ByteArray? = null
+            var jpegSize: ByteArray? = null
+            var image: Image? = null
+
+            synchronized(imageReaderLock) {
                 try {
                     if (bImageReaderDisable) {
-                        Ln.i("bImageReaderDisable !!!!!!!!!");
-                        return;
+                        Ln.i("bImageReaderDisable !!!!!!!!!")
+                        return
                     }
-                    image = imageReader.acquireLatestImage();
-                    if (image == null) return;
-                    long currentTime = System.currentTimeMillis();
-                    if (framePeriodMs > currentTime - lastTime) return;
-                    lastTime = currentTime;
-                    int width = image.getWidth();
-                    int height = image.getHeight();
-                    final Image.Plane[] planes = image.getPlanes();
-                    final ByteBuffer buffer = planes[0].getBuffer();
-                    int pixelStride = planes[0].getPixelStride();
-                    int rowStride = planes[0].getRowStride();
-                    int rowPadding = rowStride - pixelStride * width;
-                    int pitch = width + rowPadding / pixelStride;
+                    image = imageReader.acquireLatestImage()
+                    if (image == null) return
+                    val currentTime = System.currentTimeMillis()
+                    if (framePeriodMs > currentTime - lastTime) return
+                    lastTime = currentTime
+                    val width = image.width
+                    val height = image.height
+                    val planes = image.planes
+                    val buffer = planes[0]!!.buffer
+                    val pixelStride = planes[0]!!.pixelStride
+                    val rowStride = planes[0]!!.rowStride
+                    val rowPadding = rowStride - pixelStride * width
+                    val pitch = width + rowPadding / pixelStride
                     if (type == 0) {
-                        jpegData = JpegEncoder.compress(buffer, width, pitch, height, quality);
+                        jpegData = JpegEncoder.compress(buffer, width, pitch, height, quality)
                     } else if (type == 1) {
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        Bitmap bitmap = Bitmap.createBitmap(pitch, height, Bitmap.Config.ARGB_8888);
-                        bitmap.copyPixelsFromBuffer(buffer);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream);
-                        jpegData = stream.toByteArray();
-                        bitmap.recycle();
+                        val stream = ByteArrayOutputStream()
+                        val bitmap = createBitmap(pitch, height)
+                        bitmap.copyPixelsFromBuffer(buffer)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
+                        jpegData = stream.toByteArray()
+                        bitmap.recycle()
                     }
-                    if (jpegData == null) return;
-                    ByteBuffer b = ByteBuffer.allocate(4 + jpegData.length);
-                    b.order(ByteOrder.LITTLE_ENDIAN);
-                    b.putInt(jpegData.length);
-                    b.put(jpegData);
-                    jpegSize = b.array();
+                    if (jpegData == null) return
+                    val b = ByteBuffer.allocate(4 + jpegData.size)
+                    b.order(ByteOrder.LITTLE_ENDIAN)
+                    b.putInt(jpegData.size)
+                    b.put(jpegData)
+                    jpegSize = b.array()
                     try {
-                        IO.writeFully(fd, jpegSize, 0, jpegSize.length);
-                    } catch (IOException e) {
-                        Common.stopScrcpy(handler, "image");
+                        IO.writeFully(fd, jpegSize, 0, jpegSize.size)
+                    } catch (_: IOException) {
+                        stop("image")
                     }
-                } catch (Exception e) {
-                    Ln.e("onImageAvailable: " + e.getMessage());
+                } catch (e: Exception) {
+                    Ln.e("onImageAvailable: " + e.message)
                 } finally {
-                    if (image != null) {
-                        image.close();
-                    }
+                    image?.close()
                 }
             }
 
-            count++;
-            long timeB = System.currentTimeMillis();
+            count++
+            val timeB = System.currentTimeMillis()
             if (timeB - timeA >= 1000) {
-                timeA = timeB;
-                Ln.i("frame rate: " + count + ", jpeg size: " + jpegSize.length);
-                count = 0;
+                timeA = timeB
+                Ln.i("frame rate: " + count + ", jpeg size: " + jpegSize!!.size)
+                count = 0
             }
         }
     }
 
-    public Handler getHandler() {
-        return mHandler;
-    }
-
-    public void streamScreen(Device device, SocketChannel fd) {
-        device.setRotationListener(this);
-        boolean alive;
+    fun streamScreen(device: Device, fd: SocketChannel?) {
+        device.setRotationListener(this)
+        var alive: Boolean
         try {
-            writeMinicapBanner(device, fd, scale);
+            writeBanner(device, fd, scale)
             do {
-                writeRotation(fd);
-                IBinder display = createDisplay();
-                Rect contentRect = device.getScreenInfo().getContentRect();
-                Rect videoRect = getDesiredSize(contentRect, scale);
-                ImageReader mImageReader;
-                synchronized (imageReaderLock) {
-                    mImageReader = ImageReader.newInstance(videoRect.width(), videoRect.height(), PixelFormat.RGBA_8888, 2);
-                    bImageReaderDisable = false;
+                writeRotation(fd)
+                val display: IBinder? = createDisplay()
+                val contentRect = device.screenInfo.contentRect
+                val videoRect = getDesiredSize(contentRect, scale)
+                val mImageReader: ImageReader?
+                synchronized(imageReaderLock) {
+                    mImageReader = ImageReader.newInstance(
+                        videoRect.width(), videoRect.height(), PixelFormat.RGBA_8888, 2
+                    )
+                    bImageReaderDisable = false
                 }
                 if (imageAvailableListenerImpl == null) {
-                    imageAvailableListenerImpl = new ImageAvailableListenerImpl(mHandler, device, fd, maxFps, quality);
+                    imageAvailableListenerImpl =
+                        ImageAvailableListenerImpl(fd, maxFps, quality)
                 }
-                mImageReader.setOnImageAvailableListener(imageAvailableListenerImpl, mHandler);
-                Surface surface = mImageReader.getSurface();
-                setDisplaySurface(display, surface, contentRect, videoRect);
-                synchronized (rotationLock) {
+                mImageReader?.setOnImageAvailableListener(imageAvailableListenerImpl, handler)
+                val surface = mImageReader?.surface
+                setDisplaySurface(display, surface, contentRect, videoRect)
+                synchronized(rotationLock) {
                     try {
-                        rotationLock.wait();
-                    } catch (InterruptedException _) {
+                        (rotationLock as Object).wait()
+                    } catch (_: InterruptedException) {
                     }
                 }
-                synchronized (imageReaderLock) {
-                    if (mImageReader != null) {
-                        bImageReaderDisable = true;
-                        mImageReader.close();
-                    }
+                synchronized(imageReaderLock) {
+                    bImageReaderDisable = true
+                    mImageReader?.close()
                 }
-                destroyDisplay(display);
-                surface.release();
-
-                alive = getAlive();
-                Ln.i("alive: " + alive);
-            } while (alive);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Ln.e("streamScreen: " + e.getMessage());
+                destroyDisplay(display)
+                surface?.release()
+                alive = this.alive
+                Ln.i("alive: $alive")
+            } while (alive)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Ln.e("streamScreen: " + e.message)
         } finally {
-            if (mHandlerThread != null) {
-                mHandlerThread.quit();
-            }
-            device.setRotationListener(null);
+            mHandlerThread?.quit()
+            device.setRotationListener(null)
         }
     }
 
-    private Rect getDesiredSize(Rect contentRect, int resolution) {
-        int realWidth = contentRect.width();
-        int realHeight = contentRect.height();
-        int desiredWidth = realWidth;
-        int desiredHeight = realHeight;
-        int h = Math.min(realWidth, realHeight);
+    private fun getDesiredSize(contentRect: Rect, resolution: Int): Rect {
+        val realWidth = contentRect.width()
+        val realHeight = contentRect.height()
+        var desiredWidth = realWidth
+        var desiredHeight = realHeight
+        val h = min(realWidth, realHeight)
         if (h > resolution) {
-            desiredWidth = contentRect.width() * resolution / h;
-            desiredHeight = contentRect.height() * resolution / h;
-            desiredWidth = (desiredWidth + 4) & ~7;
-            desiredHeight = (desiredHeight + 4) & ~7;
+            desiredWidth = contentRect.width() * resolution / h
+            desiredHeight = contentRect.height() * resolution / h
+            desiredWidth = (desiredWidth + 4) and 7.inv()
+            desiredHeight = (desiredHeight + 4) and 7.inv()
         } else {
-            desiredWidth &= ~7;
-            desiredHeight &= ~7;
+            desiredWidth = desiredWidth and 7.inv()
+            desiredHeight = desiredHeight and 7.inv()
         }
-        Ln.i("realWidth: " + realWidth + ", realHeight: " + realHeight + ", desiredWidth: " + desiredWidth + ", desiredHeight: " + desiredHeight);
-        return new Rect(0, 0, desiredWidth, desiredHeight);
+        Ln.i("realWidth: $realWidth, realHeight: $realHeight, desiredWidth: $desiredWidth, desiredHeight: $desiredHeight")
+        return Rect(0, 0, desiredWidth, desiredHeight)
     }
 
-    private void writeRotation(SocketChannel fd) {
-        ByteBuffer r = ByteBuffer.allocate(8);
-        r.order(ByteOrder.LITTLE_ENDIAN);
-        r.putInt(4);
-        r.putInt(mRotation.get());
-        byte[] rArray = r.array();
+    private fun writeRotation(fd: SocketChannel?) {
+        val r = ByteBuffer.allocate(8)
+        r.order(ByteOrder.LITTLE_ENDIAN)
+        r.putInt(4)
+        r.putInt(mRotation.get())
+        val rArray = r.array()
         try {
-            IO.writeFully(fd, rArray, 0, rArray.length);
-        } catch (IOException e) {
-            Common.stopScrcpy(getHandler(), "rotation");
+            IO.writeFully(fd, rArray, 0, rArray.size)
+        } catch (_: IOException) {
+            stop("rotation")
         }
     }
 
-    private void writeMinicapBanner(Device device, SocketChannel fd, int scale) throws IOException {
-        final byte BANNER_SIZE = 24;
-        final byte version = 2;
-        final byte quirks = 2;
-        int pid = Process.myPid();
-        Rect contentRect = device.getScreenInfo().getContentRect();
-        Rect videoRect = getDesiredSize(contentRect, scale);
-        int realWidth = contentRect.width();
-        int realHeight = contentRect.height();
-        int desiredWidth = videoRect.width();
-        int desiredHeight = videoRect.height();
-        byte orientation = (byte) device.getRotation();
+    @Throws(IOException::class)
+    private fun writeBanner(device: Device, fd: SocketChannel?, scale: Int) {
+        val bannerSize: Byte = 24
+        val version: Byte = 2
+        val quirks: Byte = 2
+        val pid = Process.myPid()
+        val contentRect = device.screenInfo.contentRect
+        val videoRect = getDesiredSize(contentRect, scale)
+        val realWidth = contentRect.width()
+        val realHeight = contentRect.height()
+        val desiredWidth = videoRect.width()
+        val desiredHeight = videoRect.height()
+        val orientation = device.rotation.toByte()
 
-        ByteBuffer b = ByteBuffer.allocate(BANNER_SIZE);
-        b.order(ByteOrder.LITTLE_ENDIAN);
-        b.put(version);//version
-        b.put(BANNER_SIZE);//banner size
-        b.putInt(pid);//pid
-        b.putInt(realWidth);//real width
-        b.putInt(realHeight);//real height
-        b.putInt(desiredWidth);//desired width
-        b.putInt(desiredHeight);//desired height
-        b.put(orientation);//orientation
-        b.put(quirks);//quirks
-        byte[] array = b.array();
-        IO.writeFully(fd, array, 0, array.length);
-        Ln.i("banner\n" + "{\n" + "    version: " + version + "\n" + "    size: " + BANNER_SIZE + "\n" + "    real width: " + realWidth + "\n" + "    real height: " + realHeight + "\n" + "    desired width: " + desiredWidth + "\n" + "    desired height: " + desiredHeight + "\n" + "    orientation: " + orientation + "\n" + "    quirks: " + quirks + "\n" + "}\n");
+        val b = ByteBuffer.allocate(bannerSize.toInt())
+        b.order(ByteOrder.LITTLE_ENDIAN)
+        b.put(version) //version
+        b.put(bannerSize) //banner size
+        b.putInt(pid) //pid
+        b.putInt(realWidth) //real width
+        b.putInt(realHeight) //real height
+        b.putInt(desiredWidth) //desired width
+        b.putInt(desiredHeight) //desired height
+        b.put(orientation) //orientation
+        b.put(quirks) //quirks
+        val array = b.array()
+        IO.writeFully(fd, array, 0, array.size)
+        Ln.i("banner\n{\n    version: $version\n    size: $bannerSize\n    real width: $realWidth\n    real height: $realHeight\n    desired width: $desiredWidth\n    desired height: $desiredHeight\n    orientation: $orientation\n    quirks: $quirks\n}\n")
     }
 
-    private static IBinder createDisplay() {
-        return SurfaceControl.createDisplay("scrcpy", true);
-    }
+    companion object {
+        private fun createDisplay(): IBinder? {
+            return SurfaceControl.createDisplay("scrcpy", true)
+        }
 
-    private static void setDisplaySurface(IBinder display, Surface surface, Rect deviceRect, Rect displayRect) {
-        SurfaceControl.openTransaction();
-        try {
-            SurfaceControl.setDisplaySurface(display, surface);
-            SurfaceControl.setDisplayProjection(display, 0, deviceRect, displayRect);
-            SurfaceControl.setDisplayLayerStack(display, 0);
-        } finally {
-            SurfaceControl.closeTransaction();
+        private fun setDisplaySurface(
+            display: IBinder?, surface: Surface?, deviceRect: Rect?, displayRect: Rect?
+        ) {
+            SurfaceControl.openTransaction()
+            try {
+                SurfaceControl.setDisplaySurface(display, surface)
+                SurfaceControl.setDisplayProjection(display, 0, deviceRect, displayRect)
+                SurfaceControl.setDisplayLayerStack(display, 0)
+            } finally {
+                SurfaceControl.closeTransaction()
+            }
+        }
+
+        private fun destroyDisplay(display: IBinder?) {
+            SurfaceControl.destroyDisplay(display)
         }
     }
 
-    private static void destroyDisplay(IBinder display) {
-        SurfaceControl.destroyDisplay(display);
-    }
-
-    private synchronized boolean getAlive() {
-        return alive;
-    }
-
-    private synchronized void setAlive(boolean b) {
-        alive = b;
+    fun stop(obj: String) {
+        val msg = Message.obtain()
+        msg.what = 1
+        msg.obj = obj
+        handler.sendMessage(msg)
     }
 }

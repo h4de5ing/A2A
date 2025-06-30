@@ -32,5 +32,4 @@ public final class IO {
     public synchronized static void writeFully(SocketChannel channel, byte[] buffer, int offset, int len) throws IOException {
         writeFully(channel, ByteBuffer.wrap(buffer, offset, len));
     }
-
 }
