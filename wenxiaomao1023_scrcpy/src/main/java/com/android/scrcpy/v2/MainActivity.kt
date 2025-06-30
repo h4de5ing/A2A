@@ -7,7 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.genymobile.scrcpy.Server
+import com.genymobile.scrcpy.DesktopConnection
+import com.genymobile.scrcpy.Device
+import com.genymobile.scrcpy.Ln
+import com.genymobile.scrcpy.ScreenEncoder
+import java.io.IOException
 import java.net.InetSocketAddress
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
@@ -47,9 +51,17 @@ class MainActivity : AppCompatActivity() {
                     videoSocketChannel = localServerSocket.accept()
                     println("videoSocketChannel 有设备连接,${videoSocketChannel.socket().inetAddress}")
                     if (videoSocketChannel != null) {
-                        val options = Server.customOptions()
+                        val options = com.genymobile.scrcpy.Options()
                         println(options.toString())
-                        Server.scrcpy(options, videoSocketChannel)
+                        val device = Device(options)
+                        DesktopConnection.open(videoSocketChannel).use { connection ->
+                            val screenEncoder = ScreenEncoder(options, device.rotation)
+                            try {
+                                screenEncoder.streamScreen(device, connection.videoChannel)
+                            } catch (e: IOException) {
+                                Ln.i("exit: " + e.message)
+                            }
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

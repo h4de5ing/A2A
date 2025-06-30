@@ -1,102 +1,54 @@
 package com.genymobile.scrcpy;
 
-import com.genymobile.scrcpy.wrappers.SurfaceControl;
-
+import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.os.Build;
+import android.media.Image;
+import android.media.ImageReader;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Process;
 import android.view.Surface;
 
-import java.io.FileDescriptor;
+import androidx.annotation.NonNull;
+
+import com.genymobile.scrcpy.wrappers.SurfaceControl;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.graphics.ImageFormat;
-import android.graphics.YuvImage;
-import android.media.Image;
-import android.util.Log;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-
-import android.media.ImageReader;
-import android.graphics.Bitmap;
-import android.os.Environment;
-import android.graphics.PixelFormat;
-import android.os.Handler;
-import android.os.Message;
-
-import java.util.Arrays;
-import java.nio.ByteOrder;
-
-import android.os.Process;
-import android.os.HandlerThread;
-
-import java.nio.channels.SocketChannel;
-
 public class ScreenEncoder implements Device.RotationListener {
-
-    private static final int DEFAULT_I_FRAME_INTERVAL = 10; // seconds
-    private static final int REPEAT_FRAME_DELAY_US = 100_000; // repeat after 100ms
-
-    private static final int NO_PTS = -1;
-
     private final AtomicBoolean rotationChanged = new AtomicBoolean();
     private final AtomicInteger mRotation = new AtomicInteger(0);
-    private final ByteBuffer headerBuffer = ByteBuffer.allocate(12);
-
-    private int bitRate;
-    private int maxFps;
-    private int iFrameInterval;
-    private boolean sendFrameMeta;
-    private long ptsOrigin;
-
-    private int quality;
-    private int scale;
-    private boolean controlOnly;
-    private Handler mHandler;
-    private ImageReader mImageReader;
-    private HandlerThread mHandlerThread;
+    private final int maxFps;
+    private final int quality;
+    private final int scale;
+    private final Handler mHandler;
+    private final HandlerThread mHandlerThread;
     private ImageReader.OnImageAvailableListener imageAvailableListenerImpl;
 
-    private Device device;
     private final Object rotationLock = new Object();
     private final Object imageReaderLock = new Object();
     private boolean bImageReaderDisable = true;//Segmentation fault
-
     private boolean alive = true;
 
-    public ScreenEncoder(boolean sendFrameMeta, int bitRate, int maxFps, int iFrameInterval) {
-        this.sendFrameMeta = sendFrameMeta;
-        this.bitRate = bitRate;
-        this.maxFps = maxFps;
-        this.iFrameInterval = iFrameInterval;
-    }
-
-    public ScreenEncoder(boolean sendFrameMeta, int bitRate, int maxFps) {
-        this(sendFrameMeta, bitRate, maxFps, DEFAULT_I_FRAME_INTERVAL);
-    }
-
-    public ScreenEncoder(Options options, Device device/*int rotation*/) {
+    public ScreenEncoder(Options options, int rotation) {
         this.quality = options.getQuality();
         this.maxFps = options.getMaxFps();
         this.scale = options.getScale();
-        this.controlOnly = options.getControlOnly();
-        this.bitRate = options.getBitRate();
-        this.device = device;
-        mRotation.set(device.getRotation());
-
+        mRotation.set(rotation);
         mHandlerThread = new HandlerThread("ScrcpyImageReaderHandlerThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper()) {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage(@NonNull Message msg) {
                 Ln.i("hander message: " + msg);
                 if (msg.what == 1) {//exit
                     setAlive(false);
@@ -139,7 +91,7 @@ public class ScreenEncoder implements Device.RotationListener {
             this.fd = fd;
             this.device = device;
             this.quality = quality;
-            this.framePeriodMs = (int) (1000 / frameRate);
+            this.framePeriodMs = 1000 / frameRate;
         }
 
         @Override
@@ -155,26 +107,18 @@ public class ScreenEncoder implements Device.RotationListener {
                         return;
                     }
                     image = imageReader.acquireLatestImage();
-                    if (image == null) {
-                        return;
-                    }
-
+                    if (image == null) return;
                     long currentTime = System.currentTimeMillis();
-                    if (framePeriodMs > currentTime - lastTime) {
-                        return;
-                    }
+                    if (framePeriodMs > currentTime - lastTime) return;
                     lastTime = currentTime;
-
                     int width = image.getWidth();
                     int height = image.getHeight();
-                    int format = image.getFormat();//RGBA_8888 0x00000001
                     final Image.Plane[] planes = image.getPlanes();
                     final ByteBuffer buffer = planes[0].getBuffer();
                     int pixelStride = planes[0].getPixelStride();
                     int rowStride = planes[0].getRowStride();
                     int rowPadding = rowStride - pixelStride * width;
                     int pitch = width + rowPadding / pixelStride;
-//                    Ln.i("pitch: " + pitch + ", pixelStride: " + pixelStride + ", rowStride: " + rowStride + ", rowPadding: " + rowPadding);
                     if (type == 0) {
                         jpegData = JpegEncoder.compress(buffer, width, pitch, height, quality);
                     } else if (type == 1) {
@@ -185,17 +129,14 @@ public class ScreenEncoder implements Device.RotationListener {
                         jpegData = stream.toByteArray();
                         bitmap.recycle();
                     }
-                    if (jpegData == null) {
-                        Ln.e("jpegData is null");
-                        return;
-                    }
+                    if (jpegData == null) return;
                     ByteBuffer b = ByteBuffer.allocate(4 + jpegData.length);
                     b.order(ByteOrder.LITTLE_ENDIAN);
                     b.putInt(jpegData.length);
                     b.put(jpegData);
                     jpegSize = b.array();
                     try {
-                        IO.writeFully(fd, jpegSize, 0, jpegSize.length);// IOException
+                        IO.writeFully(fd, jpegSize, 0, jpegSize.length);
                     } catch (IOException e) {
                         Common.stopScrcpy(handler, "image");
                     }
@@ -222,50 +163,42 @@ public class ScreenEncoder implements Device.RotationListener {
         return mHandler;
     }
 
-    public void streamScreen(Device device, SocketChannel fd) throws IOException {
+    public void streamScreen(Device device, SocketChannel fd) {
         device.setRotationListener(this);
         boolean alive;
         try {
             writeMinicapBanner(device, fd, scale);
             do {
                 writeRotation(fd);
-                if (controlOnly) {
-                    synchronized (rotationLock) {
-                        try {
-                            rotationLock.wait();
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                } else {
-                    IBinder display = createDisplay();
-                    Rect contentRect = device.getScreenInfo().getContentRect();
-//                    Rect videoRect = device.getScreenInfo().getVideoSize().toRect();
-                    Rect videoRect = getDesiredSize(contentRect, scale);
-                    synchronized (imageReaderLock) {
-                        mImageReader = ImageReader.newInstance(videoRect.width(), videoRect.height(), PixelFormat.RGBA_8888, 2);
-                        bImageReaderDisable = false;
-                    }
-                    if (imageAvailableListenerImpl == null) {
-                        imageAvailableListenerImpl = new ImageAvailableListenerImpl(mHandler, device, fd, maxFps, quality);
-                    }
-                    mImageReader.setOnImageAvailableListener(imageAvailableListenerImpl, mHandler);
-                    Surface surface = mImageReader.getSurface();
-                    setDisplaySurface(display, surface, contentRect, videoRect);
-                    synchronized (rotationLock) {
-                        try {
-                            rotationLock.wait();
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                    synchronized (imageReaderLock) {
-                        if (mImageReader != null) {
-                            bImageReaderDisable = true;
-                            mImageReader.close();
-                        }
-                    }
-                    destroyDisplay(display);
-                    surface.release();
+                IBinder display = createDisplay();
+                Rect contentRect = device.getScreenInfo().getContentRect();
+                Rect videoRect = getDesiredSize(contentRect, scale);
+                ImageReader mImageReader;
+                synchronized (imageReaderLock) {
+                    mImageReader = ImageReader.newInstance(videoRect.width(), videoRect.height(), PixelFormat.RGBA_8888, 2);
+                    bImageReaderDisable = false;
                 }
+                if (imageAvailableListenerImpl == null) {
+                    imageAvailableListenerImpl = new ImageAvailableListenerImpl(mHandler, device, fd, maxFps, quality);
+                }
+                mImageReader.setOnImageAvailableListener(imageAvailableListenerImpl, mHandler);
+                Surface surface = mImageReader.getSurface();
+                setDisplaySurface(display, surface, contentRect, videoRect);
+                synchronized (rotationLock) {
+                    try {
+                        rotationLock.wait();
+                    } catch (InterruptedException _) {
+                    }
+                }
+                synchronized (imageReaderLock) {
+                    if (mImageReader != null) {
+                        bImageReaderDisable = true;
+                        mImageReader.close();
+                    }
+                }
+                destroyDisplay(display);
+                surface.release();
+
                 alive = getAlive();
                 Ln.i("alive: " + alive);
             } while (alive);
@@ -285,10 +218,7 @@ public class ScreenEncoder implements Device.RotationListener {
         int realHeight = contentRect.height();
         int desiredWidth = realWidth;
         int desiredHeight = realHeight;
-        int h = realHeight;
-        if (realWidth < realHeight) {
-            h = realWidth;
-        }
+        int h = Math.min(realWidth, realHeight);
         if (h > resolution) {
             desiredWidth = contentRect.width() * resolution / h;
             desiredHeight = contentRect.height() * resolution / h;
@@ -317,7 +247,7 @@ public class ScreenEncoder implements Device.RotationListener {
 
     private void writeMinicapBanner(Device device, SocketChannel fd, int scale) throws IOException {
         final byte BANNER_SIZE = 24;
-        final byte version = 1;
+        final byte version = 2;
         final byte quirks = 2;
         int pid = Process.myPid();
         Rect contentRect = device.getScreenInfo().getContentRect();
@@ -330,29 +260,18 @@ public class ScreenEncoder implements Device.RotationListener {
 
         ByteBuffer b = ByteBuffer.allocate(BANNER_SIZE);
         b.order(ByteOrder.LITTLE_ENDIAN);
-        b.put((byte) version);//version
+        b.put(version);//version
         b.put(BANNER_SIZE);//banner size
         b.putInt(pid);//pid
         b.putInt(realWidth);//real width
         b.putInt(realHeight);//real height
         b.putInt(desiredWidth);//desired width
         b.putInt(desiredHeight);//desired height
-        b.put((byte) orientation);//orientation
-        b.put((byte) quirks);//quirks
+        b.put(orientation);//orientation
+        b.put(quirks);//quirks
         byte[] array = b.array();
-        IO.writeFully(fd, array, 0, array.length);// IOException
-        Ln.i("banner\n"
-                + "{\n"
-                + "    version: " + version + "\n"
-                + "    size: " + BANNER_SIZE + "\n"
-                + "    real width: " + realWidth + "\n"
-                + "    real height: " + realHeight + "\n"
-                + "    desired width: " + desiredWidth + "\n"
-                + "    desired height: " + desiredHeight + "\n"
-                + "    orientation: " + orientation + "\n"
-                + "    quirks: " + quirks + "\n"
-                + "}\n"
-        );
+        IO.writeFully(fd, array, 0, array.length);
+        Ln.i("banner\n" + "{\n" + "    version: " + version + "\n" + "    size: " + BANNER_SIZE + "\n" + "    real width: " + realWidth + "\n" + "    real height: " + realHeight + "\n" + "    desired width: " + desiredWidth + "\n" + "    desired height: " + desiredHeight + "\n" + "    orientation: " + orientation + "\n" + "    quirks: " + quirks + "\n" + "}\n");
     }
 
     private static IBinder createDisplay() {

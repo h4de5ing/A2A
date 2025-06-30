@@ -1,9 +1,9 @@
 package com.genymobile.scrcpy.wrappers;
 
-import com.genymobile.scrcpy.Ln;
-
 import android.os.IInterface;
 import android.view.IRotationWatcher;
+
+import com.genymobile.scrcpy.Ln;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -62,34 +62,6 @@ public final class WindowManager {
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             Ln.e("Could not invoke method", e);
             return 0;
-        }
-    }
-
-    public void freezeRotation(int rotation) {
-        try {
-            Method method = getFreezeRotationMethod();
-            method.invoke(manager, rotation);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-            Ln.e("Could not invoke method", e);
-        }
-    }
-
-    public boolean isRotationFrozen() {
-        try {
-            Method method = getIsRotationFrozenMethod();
-            return (boolean) method.invoke(manager);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-            Ln.e("Could not invoke method", e);
-            return false;
-        }
-    }
-
-    public void thawRotation() {
-        try {
-            Method method = getThawRotationMethod();
-            method.invoke(manager);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-            Ln.e("Could not invoke method", e);
         }
     }
 
