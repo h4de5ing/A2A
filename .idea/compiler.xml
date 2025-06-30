@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="17">
+    <bytecodeTargetLevel target="21">
       <module name="WIFIAP.Androidfrpc" target="21" />
       <module name="WIFIAP.app" target="21" />
+      <module name="WIFIAP.AServer" target="21" />
+      <module name="WIFIAP.BClient" target="21" />
       <module name="WIFIAP.CClient" target="21" />
       <module name="WIFIAP.pf" target="21" />
       <module name="WIFIAP.scrcpy" target="21" />

@@ -6,12 +6,10 @@ public class Options {
     private int maxSize;
     private int bitRate;
     private int maxFps;
-    private boolean tunnelForward;
     private Rect crop;
     private boolean sendFrameMeta; // send PTS so that the client may record properly
     private boolean control;
 
-    //wen add
     private int quality;
     private int scale;
     private boolean controlOnly;
@@ -40,14 +38,6 @@ public class Options {
 
     public void setMaxFps(int maxFps) {
         this.maxFps = maxFps;
-    }
-
-    public boolean isTunnelForward() {
-        return tunnelForward;
-    }
-
-    public void setTunnelForward(boolean tunnelForward) {
-        this.tunnelForward = tunnelForward;
     }
 
     public Rect getCrop() {
@@ -120,7 +110,6 @@ public class Options {
                 "maxSize=" + maxSize +
                 ", bitRate=" + bitRate +
                 ", maxFps=" + maxFps +
-                ", tunnelForward=" + tunnelForward +
                 ", crop=" + crop +
                 ", sendFrameMeta=" + sendFrameMeta +
                 ", control=" + control +

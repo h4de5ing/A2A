@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "WIFIAP"
+rootProject.name = "A2A"
 //include(":app")
 //include(":usbp2p")
 //include(":screen")
@@ -22,6 +22,5 @@ rootProject.name = "WIFIAP"
 //include(":BClient")
 //include(":CClient")
 //include(":Simplesshd")
-//include(":Androidfrpc")
 //include(":pf")
 include(":wenxiaomao1023_scrcpy")

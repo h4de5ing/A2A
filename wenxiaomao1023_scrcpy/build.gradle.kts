@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.android.scrcpy.v2"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.android.scrcpy.v2"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
@@ -51,5 +51,5 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("commons-cli:commons-cli:1.4")
+    implementation("commons-cli:commons-cli:1.9.0")
 }

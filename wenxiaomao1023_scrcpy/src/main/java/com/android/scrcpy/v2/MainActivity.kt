@@ -44,10 +44,7 @@ class MainActivity : AppCompatActivity() {
                     videoSocketChannel = localServerSocket.accept()
                     println("videoSocketChannel 有设备连接,${videoSocketChannel.socket().inetAddress}")
                     controlSocketChannel = controlServerSocket.accept()
-                    println("controlSocketChannel 有设备连接,${controlSocketChannel.socket().inetAddress}")
-
                     if (videoSocketChannel != null && controlSocketChannel != null) {
-                        println("开始连接")
                         val options = Server.customOptions()
                         println(options.toString())
                         Server.scrcpy(options, videoSocketChannel, controlSocketChannel)

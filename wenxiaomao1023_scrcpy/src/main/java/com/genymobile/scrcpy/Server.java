@@ -20,7 +20,6 @@ public final class Server {
     }
 
     public static void scrcpy(Options options, SocketChannel videoSocket, SocketChannel controlSocket) throws IOException {
-        AccessibilityNodeInfoDumper dumper;
         final Device device = new Device(options);
 
         try (DesktopConnection connection = DesktopConnection.open(device, videoSocket, controlSocket)) {
@@ -28,32 +27,14 @@ public final class Server {
             handler = screenEncoder.getHandler();
             if (options.getControl()) {
                 Controller controller = new Controller(device, connection);
-
-                // asynchronous
                 startController(controller);
                 startDeviceMessageSender(controller.getSender());
             }
-
-            if (options.getDumpHierarchy()) {
-                dumper = new AccessibilityNodeInfoDumper(handler, device, connection);
-                dumper.start();
-            }
-
             try {
-                // synchronous
                 screenEncoder.streamScreen(device, connection.getVideoChannel());
             } catch (IOException e) {
                 Ln.i("exit: " + e.getMessage());
-                //do exit(0)
-            } finally {
-//                if (options.getDumpHierarchy() && dumper != null) {
-//                    dumper.stop();
-//                }
-//                // this is expected on close
-//                Ln.d("Screen streaming stopped");
-//                System.exit(0);
             }
-
         }
     }
 
@@ -62,7 +43,6 @@ public final class Server {
             try {
                 controller.control();
             } catch (IOException e) {
-                // this is expected on close
                 Ln.d("Controller stopped");
                 Common.stopScrcpy(handler, "control");
             }
@@ -74,7 +54,6 @@ public final class Server {
             try {
                 sender.loop();
             } catch (IOException | InterruptedException e) {
-                // this is expected on close
                 Ln.d("Device message sender stopped");
             }
         }).start();
@@ -106,10 +85,6 @@ public final class Server {
 
         int maxFps = Integer.parseInt(args[3]);
         options.setMaxFps(maxFps);
-
-        // use "adb forward" instead of "adb tunnel"? (so the server must listen)
-        boolean tunnelForward = Boolean.parseBoolean(args[4]);
-        options.setTunnelForward(tunnelForward);
 
         Rect crop = parseCrop(args[5]);
         options.setCrop(crop);
@@ -151,7 +126,6 @@ public final class Server {
         }
         Options o = new Options();
         o.setMaxSize(0);
-        o.setTunnelForward(true);
         o.setCrop(null);
         o.setControl(true);
         // global
