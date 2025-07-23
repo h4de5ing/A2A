@@ -10,7 +10,6 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-import okio.ByteString.Companion.toByteString
 
 class MyWSClient(
     val url: String,
@@ -22,6 +21,7 @@ class MyWSClient(
     private var webSocket: WebSocket? = null
     private var open = false
     fun isOpen(): Boolean = open
+    var delayTime = 5 * 1000L
     fun connectWebSocket() {
         try {
             val request = Request.Builder().url(url).build()
@@ -38,7 +38,7 @@ class MyWSClient(
                     "onFailure:${t}".logI()
                     open = false
                     CoroutineScope(Dispatchers.IO).launch {
-                        delay(10000)
+                        delay(delayTime)
                         connectWebSocket()
                     }
                     onFailureCallback(t, response)
@@ -61,7 +61,7 @@ class MyWSClient(
                     open = false
                     onClosedCallback()
                     CoroutineScope(Dispatchers.IO).launch {
-                        delay(10000)
+                        delay(delayTime)
                         connectWebSocket()
                     }
                 }
@@ -80,7 +80,7 @@ class MyWSClient(
 
     fun send(data: ByteArray) {
         "发送字节流 ${data.size}".logI()
-        webSocket?.send(data.toByteString())
+        webSocket?.send(ByteString.of(*data))
     }
 }
 

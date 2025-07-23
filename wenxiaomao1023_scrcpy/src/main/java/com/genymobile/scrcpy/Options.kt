@@ -11,8 +11,8 @@ data class Options(
     //是否发送帧原始信息，默认true
     var sendFrameMeta: Boolean = true, // send PTS so that the client may record properly
 
-    var quality: Int = 60, //质量 1~100 默认60
-    var scale: Int = 480 //缩放 1080 720 480 360 默认480
+    var quality: Int = 100, //质量 1~100 默认60
+    var scale: Int = 1080 //缩放 1080 720 480 360 默认480
 ) {
     override fun toString(): String {
         return "Options{" +

@@ -10,6 +10,9 @@ import androidx.core.view.WindowInsetsCompat
 import com.genymobile.scrcpy.Device
 import com.genymobile.scrcpy.Ln
 import com.genymobile.scrcpy.ScreenEncoder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
@@ -17,6 +20,7 @@ import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 
 class MainActivity : AppCompatActivity() {
+    private var ws: MyWSClient? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,21 +35,23 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.start_button).setOnClickListener {
             startServer()
         }
-        start()
-        startServer()
-//        val iWindow = IWindowManager.Stub.asInterface(ServiceManager.getService("window"))
-//        iWindow.defaultDisplayRotation
-//        iWindow.watchRotation(object : android.view.IRotationWatcher.Default() {})
-
-
-//        val iDisplay = IDisplayManager.Stub.asInterface(ServiceManager.getService("display"))
-//        iDisplay.getDisplayInfo(0)
-    }
-
-    private fun start() {
-        MyWSClient("ws://10.18.16.212:8080/emm_mdm/websocket/123456") {
+        val url2 = "ws://10.18.16.247:81/123456"
+        ws = MyWSClient(url2) {
             it.logI()
-        }.connectWebSocket()
+        }
+        ws?.connectWebSocket()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val options = com.genymobile.scrcpy.Options()
+                val device = Device(options)
+                ScreenEncoder(options, device.rotation) {
+                    ws?.send(it)
+                }.streamScreen(device)
+            } catch (e: IOException) {
+                Ln.e("exit: " + e.message)
+            }
+        }
+//        startServer()
     }
 
     private fun startServer() {
