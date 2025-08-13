@@ -1,0 +1,6 @@
+<resources>
+
+    <style name="Base.Theme.Web_screen" parent="android:Theme.Holo.Light" />
+
+    <style name="Theme.Web_screen" parent="Base.Theme.Web_screen" />
+</resources>

@@ -47,7 +47,7 @@ https://github.com/android/media-samples
 https://github.com/lesa1127/AndroidScreenShare
 https://github.com/yrom/ScreenRecorder
 https://github.com/omerjerk/Screenshotter
-
+https://github.com/bbogush/web_screen
 kmp 跨拼图底层实现库
 https://github.com/JetBrains/skiko
 

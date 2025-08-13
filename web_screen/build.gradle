@@ -1,0 +1,55 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    compileSdk = 36
+    namespace = "com.bbogush.web_screen"
+    defaultConfig {
+        applicationId "com.bbogush.web_screen"
+        minSdkVersion 26
+        targetSdk = 36
+        versionCode 7
+        versionName "1.1.0"
+    }
+    signingConfigs {
+        sign {
+            storeFile file("D:\\Android12SignerGUI\\SignFiles\\NewPublic\\platform.jks")
+            storePassword('android')
+            keyAlias('android')
+            keyPassword('android')
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.sign
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.sign
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_22
+        targetCompatibility JavaVersion.VERSION_22
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'com.google.android.material:material:1.12.0'
+//    implementation 'org.webrtc:google-webrtc:1.0.32006'
+    implementation 'com.mesibo.api:webrtc:1.0.5'
+    implementation 'com.squareup.retrofit2:retrofit:3.0.0'
+    implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
+    implementation 'com.google.code.gson:gson:2.13.1'
+//    implementation('io.socket:socket.io-client:1.0.0') {
+//         excluding org.json which is provided by Android
+//        exclude group: 'org.json', module: 'json'
+//    }
+    implementation 'com.neovisionaries:nv-websocket-client:2.14'
+
+}
