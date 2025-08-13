@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 35
+    compileSdk =36
     namespace "com.genymobile.scrcpy"
     defaultConfig {
         applicationId "com.genymobile.scrcpy.v1"
         minSdkVersion 24
-        targetSdkVersion 35
+        targetSdk= 36
         versionCode 25
         versionName "2.5"
     }

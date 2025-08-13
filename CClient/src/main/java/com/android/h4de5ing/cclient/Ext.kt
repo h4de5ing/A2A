@@ -22,7 +22,7 @@ fun screenShot(context: Context, widht: Int = 1080, height: Int = 2400, surface:
 //    val display: IBinder = SurfaceControl.createDisplay("scrcpy", false)
     val mp = context.getSystemService("media_projection") as MediaProjectionManager
     val mediaProjection = mp.getMediaProjection(0, Intent())
-    val virtualDisplay = mediaProjection.createVirtualDisplay(
+    val virtualDisplay = mediaProjection?.createVirtualDisplay(
         "scrcpy",
         widht,
         height,

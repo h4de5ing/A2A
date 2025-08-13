@@ -3,12 +3,12 @@ plugins {
     id 'kotlin-android'
 }
 android {
-    compileSdk 35
+    compileSdk = 36
     namespace "org.las2mile.scrcpy"
     defaultConfig {
         applicationId "org.las2mile.scrcpy.b"
         minSdkVersion 21
-        targetSdkVersion 35
+        targetSdk = 36
         versionCode 3
         versionName "1.2"
     }
@@ -35,10 +35,9 @@ android {
         buildConfig true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_19
-        targetCompatibility = JavaVersion.VERSION_19
+        sourceCompatibility = JavaVersion.VERSION_22
+        targetCompatibility = JavaVersion.VERSION_22
     }
-    kotlinOptions { jvmTarget = "19" }
 }
 dependencies {
     implementation("org.java-websocket:Java-WebSocket:1.6.0")

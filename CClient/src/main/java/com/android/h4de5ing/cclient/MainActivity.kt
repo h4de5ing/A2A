@@ -28,17 +28,5 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != RESULT_OK) return
         if (data == null) return
-        val mediaProjection: MediaProjection =
-            mMediaProjectionManager.getMediaProjection(resultCode, data)
-        mediaProjection.createVirtualDisplay(
-            "test",
-            1080,
-            2340,
-            50,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-            null,
-            null,
-            null
-        )
     }
 }
