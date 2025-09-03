@@ -26,3 +26,16 @@ include(":web_screen")
 include(":webrtc_lib")
 include(":webrtc_android")
 include(":webrtc_web")
+
+
+include(":SystemLib")
+project(":SystemLib").projectDir = File("D:\\repository\\SystemFunction\\SystemFunction_src\\SystemLib")
+
+include(":Android12")
+project(":Android12").projectDir = File("D:\\repository\\SystemFunction\\SystemFunction_src\\Android12")
+
+include(":Android13")
+project(":Android13").projectDir = File("D:\\repository\\SystemFunction\\SystemFunction_src\\Android13")
+
+include(":Android14")
+project(":Android14").projectDir = File("D:\\repository\\SystemFunction\\SystemFunction_src\\Android14")

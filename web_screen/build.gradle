@@ -51,5 +51,8 @@ dependencies {
 //        exclude group: 'org.json', module: 'json'
 //    }
     implementation 'com.neovisionaries:nv-websocket-client:2.14'
-
+    implementation(project(":SystemLib"))
+    implementation(project(":Android12"))
+    implementation(project(":Android13"))
+    implementation(project(":Android14"))
 }

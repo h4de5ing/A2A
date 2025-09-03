@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERM_ACTION_ACCESSIBILITY_SERVICE = 100;
     private static final int PERM_MEDIA_PROJECTION_SERVICE = 101;
     private static final int HANDLER_MESSAGE_UPDATE_NETWORK = 0;
-    private int httpServerPort = 8080;
+    private final int httpServerPort = 8080;
     private AppService appService = null;
     private AppServiceConnection serviceConnection = null;
     private NetworkHelper networkHelper = null;
