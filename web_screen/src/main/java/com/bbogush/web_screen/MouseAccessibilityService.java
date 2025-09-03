@@ -18,18 +18,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MouseAccessibilityService extends AccessibilityService {
     private static final String TAG = MouseAccessibilityService.class.getSimpleName();
-
     private static final int PINCH_DURATION_MS = 400;
     private static final int PINCH_DISTANCE_CLOSE = 200;
     private static final int PINCH_DISTANCE_FAR = 800;
-
     private static MouseAccessibilityService instance;
-
-    private AtomicBoolean lock = new AtomicBoolean(false);
+    private final AtomicBoolean lock = new AtomicBoolean(false);
     private boolean isMouseDown = false;
     private GestureDescription.StrokeDescription currentStroke = null;
     private int prevX = 0, prevY = 0;
-    private List<GestureDescription> gestureList = new LinkedList<>();
+    private final List<GestureDescription> gestureList = new LinkedList<>();
     private Display display = null;
 
     @Override
@@ -47,7 +44,7 @@ public class MouseAccessibilityService extends AccessibilityService {
     }
 
     public void setContext(Context context) {
-        WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         display = wm.getDefaultDisplay();
     }
 
@@ -56,9 +53,7 @@ public class MouseAccessibilityService extends AccessibilityService {
         synchronized (lock) {
             GestureDescription gesture = buildGesture(x, y, x, y, 0, 1, false, true);
             gestureList.add(gesture);
-            if (gestureList.size() == 1)
-                dispatchGestureHandler();
-
+            if (gestureList.size() == 1) dispatchGestureHandler();
             prevX = x;
             prevY = y;
             isMouseDown = true;
@@ -67,16 +62,11 @@ public class MouseAccessibilityService extends AccessibilityService {
 
     public void mouseMove(int x, int y) {
         synchronized (lock) {
-            if (!isMouseDown)
-                return;
-            if (prevX == x && prevY == y)
-                return;
-
+            if (!isMouseDown) return;
+            if (prevX == x && prevY == y) return;
             GestureDescription gesture = buildGesture(prevX, prevY, x, y, 0, 1, true, true);
             gestureList.add(gesture);
-            if (gestureList.size() == 1)
-                dispatchGestureHandler();
-
+            if (gestureList.size() == 1) dispatchGestureHandler();
             prevX = x;
             prevY = y;
         }
@@ -87,9 +77,7 @@ public class MouseAccessibilityService extends AccessibilityService {
         synchronized (lock) {
             GestureDescription gesture = buildGesture(prevX, prevY, x, y, 0, 1, true, false);
             gestureList.add(gesture);
-            if (gestureList.size() == 1)
-                dispatchGestureHandler();
-
+            if (gestureList.size() == 1) dispatchGestureHandler();
             isMouseDown = false;
         }
     }
@@ -99,24 +87,17 @@ public class MouseAccessibilityService extends AccessibilityService {
                                             boolean willContinue) {
         Path path = new Path();
         path.moveTo(x1, y1);
-        if (x1 != x2 || y1 != y2)
-            path.lineTo(x2, y2);
-
+        if (x1 != x2 || y1 != y2) path.lineTo(x2, y2);
         GestureDescription.StrokeDescription stroke;
         if (!isContinuedGesture) {
-            stroke = new GestureDescription.StrokeDescription(path, startTime, duration,
-                    willContinue);
-        }
-        else {
+            stroke = new GestureDescription.StrokeDescription(path, startTime, duration, willContinue);
+        } else {
             stroke = currentStroke.continueStroke(path, startTime, duration, willContinue);
         }
-
         GestureDescription.Builder builder = new GestureDescription.Builder();
         builder.addStroke(stroke);
         GestureDescription gestureDescription = builder.build();
-
         currentStroke = stroke;
-
         return gestureDescription;
     }
 
@@ -189,37 +170,34 @@ public class MouseAccessibilityService extends AccessibilityService {
 
     private void dispatchGestureHandler() {
         GestureDescription gesture = gestureList.get(0);
-
         if (!instance.dispatchGesture(gesture, gestureResultCallback, null)) {
             Log.e(TAG, "Gesture was not dispatched");
             gestureList.clear();
-            return;
         }
     }
 
-    private AccessibilityService.GestureResultCallback gestureResultCallback =
-            new AccessibilityService.GestureResultCallback() {
-                @Override
-                public void onCompleted(GestureDescription gestureDescription) {
-                    synchronized (lock) {
-                        gestureList.remove(0);
-                        if (gestureList.isEmpty())
-                            return;
-                        dispatchGestureHandler();
-                    }
+    private final AccessibilityService.GestureResultCallback gestureResultCallback = new AccessibilityService.GestureResultCallback() {
+        @Override
+        public void onCompleted(GestureDescription gestureDescription) {
+            synchronized (lock) {
+                gestureList.remove(0);
+                if (gestureList.isEmpty())
+                    return;
+                dispatchGestureHandler();
+            }
 
-                    super.onCompleted(gestureDescription);
-                }
+            super.onCompleted(gestureDescription);
+        }
 
-                @Override
-                public void onCancelled(GestureDescription gestureDescription) {
-                    synchronized (lock) {
-                        Log.w(TAG, "Gesture canceled");
-                        gestureList.remove(0);
-                        super.onCancelled(gestureDescription);
-                    }
-                }
-            };
+        @Override
+        public void onCancelled(GestureDescription gestureDescription) {
+            synchronized (lock) {
+                Log.w(TAG, "Gesture canceled");
+                gestureList.remove(0);
+                super.onCancelled(gestureDescription);
+            }
+        }
+    };
 
     public void backButtonClick() {
         Log.d(TAG, "Back button pressed");
@@ -261,13 +239,8 @@ public class MouseAccessibilityService extends AccessibilityService {
     @SuppressWarnings("deprecation")
     private void wakeScreenIfNecessary() {
         PowerManager pm = (PowerManager) instance.getSystemService(Context.POWER_SERVICE);
-        if (pm.isInteractive()) {
-            return;
-        }
-
-        PowerManager.WakeLock screenLock =
-                pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
-                                PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
+        if (pm.isInteractive()) return;
+        PowerManager.WakeLock screenLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
         screenLock.acquire();
         screenLock.release();
     }
