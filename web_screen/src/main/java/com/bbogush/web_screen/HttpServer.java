@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,7 +23,6 @@ import fi.iki.elonen.NanoWSD;
 
 public class HttpServer extends NanoWSD {
     private static final String TAG = HttpServer.class.getSimpleName();
-
     private static final String HTML_DIR = "html/";
     private static final String INDEX_HTML = "index.html";
     private static final String MIME_IMAGE_SVG = "image/svg+xml";
@@ -50,10 +48,9 @@ public class HttpServer extends NanoWSD {
     private Context context;
     Ws webSocket = null;
 
-    private HttpServer.HttpServerInterface httpServerInterface;
+    private final HttpServer.HttpServerInterface httpServerInterface;
 
-    public HttpServer(int port, Context context,
-                      HttpServer.HttpServerInterface httpServerInterface) {
+    public HttpServer(int port, Context context, HttpServer.HttpServerInterface httpServerInterface) {
         super(port);
         this.context = context;
         this.httpServerInterface = httpServerInterface;
@@ -63,13 +60,11 @@ public class HttpServer extends NanoWSD {
     private void configSecurity() {
         final String keyPassword = "presscott";
         final String certPassword = "presscott";
-
         try {
             InputStream keyStoreStream = context.getAssets().open("private/keystore.bks");
             KeyStore keyStore = KeyStore.getInstance("BKS");
             keyStore.load(keyStoreStream, keyPassword.toCharArray());
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory
-                    .getDefaultAlgorithm());
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(keyStore, certPassword.toCharArray());
             makeSecure(makeSSLSocketFactory(keyStore, keyManagerFactory), null);
         } catch (Exception e) {
@@ -104,8 +99,7 @@ public class HttpServer extends NanoWSD {
         }
 
         @Override
-        protected void onClose(WebSocketFrame.CloseCode code, String reason,
-                               boolean initiatedByRemote) {
+        protected void onClose(WebSocketFrame.CloseCode code, String reason, boolean initiatedByRemote) {
             Log.d(TAG, "WebSocket close");
             pingTimer.cancel();
             httpServerInterface.onWebSocketClose();
@@ -113,15 +107,14 @@ public class HttpServer extends NanoWSD {
 
         @Override
         protected void onMessage(WebSocketFrame message) {
+            Log.d(TAG, "收到json数据:" + message.getTextPayload());
             JSONObject json;
-
             try {
                 json = new JSONObject(message.getTextPayload());
             } catch (JSONException e) {
                 e.printStackTrace();
                 return;
             }
-
             handleRequest(json);
         }
 
@@ -151,29 +144,42 @@ public class HttpServer extends NanoWSD {
 
     public interface HttpServerInterface {
         void onMouseDown(JSONObject message);
+
         void onMouseMove(JSONObject message);
+
         void onMouseUp(JSONObject message);
+
         void onMouseZoomIn(JSONObject message);
+
         void onMouseZoomOut(JSONObject message);
+
         void onButtonBack();
+
         void onButtonHome();
+
         void onButtonRecent();
+
         void onButtonPower();
+
         void onButtonLock();
+
         void onJoin(HttpServer server);
+
         void onSdp(JSONObject message);
+
         void onIceCandidate(JSONObject message);
+
         void onBye();
+
         void onWebSocketClose();
     }
 
     public void send(String message) throws IOException {
-        if (webSocket != null)
-            webSocket.send(message);
+        if (webSocket != null) webSocket.send(message);
     }
 
     private Response serveRequest(IHTTPSession session, String uri, Method method) {
-        if(Method.GET.equals(method))
+        if (Method.GET.equals(method))
             return handleGet(session, uri);
 
         return notFoundResponse();
@@ -184,8 +190,7 @@ public class HttpServer extends NanoWSD {
     }
 
     private Response internalErrorResponse() {
-        return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT,
-                "Internal error");
+        return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Internal error");
     }
 
     private Response handleGet(IHTTPSession session, String uri) {
@@ -194,13 +199,11 @@ public class HttpServer extends NanoWSD {
         } else if (uri.contains("private")) {
             return notFoundResponse();
         }
-
         return handleFileRequest(session, uri);
     }
 
     private Response handleRootRequest(IHTTPSession session) {
         String indexHtml = readFile(HTML_DIR + INDEX_HTML);
-
         return newFixedLengthResponse(Response.Status.OK, MIME_HTML, indexHtml);
     }
 
@@ -261,26 +264,21 @@ public class HttpServer extends NanoWSD {
 
     private String readFile(String fileName) {
         InputStream fileStream;
-        String string = "";
-
+        StringBuilder string = new StringBuilder();
         try {
             fileStream = context.getAssets().open(fileName);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fileStream,
-                    "UTF-8"));
-
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileStream, "UTF-8"));
             String line;
             while ((line = reader.readLine()) != null)
-                string += line;
+                string.append(line);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return string;
+        return string.toString();
     }
 
     private Response handleFileRequest(IHTTPSession session, String uri) {
         String relativePath = uri.startsWith("/") ? uri.substring(1) : uri;
-
         InputStream fileStream;
         try {
             fileStream = context.getAssets().open(relativePath);
@@ -305,12 +303,7 @@ public class HttpServer extends NanoWSD {
     private void notifyAboutNewConnection(IHTTPSession session) {
         // The message is used to trigger screen redraw on new connection
         final String remoteAddress = session.getRemoteIpAddress();
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, "WebScreen\nNew connection from " + remoteAddress,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "WebScreen\nNew connection from " + remoteAddress,
+                Toast.LENGTH_SHORT).show());
     }
 }
