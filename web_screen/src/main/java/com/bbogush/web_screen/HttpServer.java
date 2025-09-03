@@ -13,8 +13,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,23 +23,37 @@ import javax.net.ssl.KeyManagerFactory;
 import fi.iki.elonen.NanoWSD;
 
 public class HttpServer extends NanoWSD {
-    private static final String TAG = "WebRtcManager";
+    private static final String TAG = HttpServer.class.getSimpleName();
+
+    private static final String HTML_DIR = "html/";
+    private static final String INDEX_HTML = "index.html";
     private static final String MIME_IMAGE_SVG = "image/svg+xml";
     private static final String MIME_JS = "text/javascript";
     private static final String MIME_TEXT_PLAIN_JS = "text/plain";
     private static final String MIME_TEXT_CSS = "text/css";
     private static final String TYPE_PARAM = "type";
+    private static final String TYPE_VALUE_MOUSE_UP = "mouse_up";
+    private static final String TYPE_VALUE_MOUSE_MOVE = "mouse_move";
+    private static final String TYPE_VALUE_MOUSE_DOWN = "mouse_down";
+    private static final String TYPE_VALUE_MOUSE_ZOOM_IN = "mouse_zoom_in";
+    private static final String TYPE_VALUE_MOUSE_ZOOM_OUT = "mouse_zoom_out";
+    private static final String TYPE_VALUE_BUTTON_BACK = "button_back";
+    private static final String TYPE_VALUE_BUTTON_HOME = "button_home";
+    private static final String TYPE_VALUE_BUTTON_RECENT = "button_recent";
+    private static final String TYPE_VALUE_BUTTON_POWER = "button_power";
+    private static final String TYPE_VALUE_BUTTON_LOCK = "button_lock";
     private static final String TYPE_VALUE_JOIN = "join";
     private static final String TYPE_VALUE_SDP = "sdp";
     private static final String TYPE_VALUE_ICE = "ice";
     private static final String TYPE_VALUE_BYE = "bye";
 
-    private final Context context;
-    private Ws webSocket = null;
+    private Context context;
+    Ws webSocket = null;
 
-    private final HttpServer.HttpServerInterface httpServerInterface;
+    private HttpServer.HttpServerInterface httpServerInterface;
 
-    public HttpServer(int port, Context context, HttpServer.HttpServerInterface httpServerInterface) {
+    public HttpServer(int port, Context context,
+                      HttpServer.HttpServerInterface httpServerInterface) {
         super(port);
         this.context = context;
         this.httpServerInterface = httpServerInterface;
@@ -60,6 +74,7 @@ public class HttpServer extends NanoWSD {
             makeSecure(makeSSLSocketFactory(keyStore, keyManagerFactory), null);
         } catch (Exception e) {
             e.printStackTrace();
+            return;
         }
     }
 
@@ -89,7 +104,8 @@ public class HttpServer extends NanoWSD {
         }
 
         @Override
-        protected void onClose(WebSocketFrame.CloseCode code, String reason, boolean initiatedByRemote) {
+        protected void onClose(WebSocketFrame.CloseCode code, String reason,
+                               boolean initiatedByRemote) {
             Log.d(TAG, "WebSocket close");
             pingTimer.cancel();
             httpServerInterface.onWebSocketClose();
@@ -98,12 +114,14 @@ public class HttpServer extends NanoWSD {
         @Override
         protected void onMessage(WebSocketFrame message) {
             JSONObject json;
+
             try {
                 json = new JSONObject(message.getTextPayload());
             } catch (JSONException e) {
                 e.printStackTrace();
                 return;
             }
+
             handleRequest(json);
         }
 
@@ -127,31 +145,37 @@ public class HttpServer extends NanoWSD {
     protected Response serveHttp(IHTTPSession session) {
         Method method = session.getMethod();
         String uri = session.getUri();
+
         return serveRequest(session, uri, method);
     }
 
     public interface HttpServerInterface {
+        void onMouseDown(JSONObject message);
+        void onMouseMove(JSONObject message);
+        void onMouseUp(JSONObject message);
+        void onMouseZoomIn(JSONObject message);
+        void onMouseZoomOut(JSONObject message);
+        void onButtonBack();
+        void onButtonHome();
+        void onButtonRecent();
+        void onButtonPower();
+        void onButtonLock();
         void onJoin(HttpServer server);
-
         void onSdp(JSONObject message);
-
         void onIceCandidate(JSONObject message);
-
         void onBye();
-
         void onWebSocketClose();
     }
 
     public void send(String message) throws IOException {
-        if (webSocket != null) {
-            Log.d(TAG, "发送:" + message);
+        if (webSocket != null)
             webSocket.send(message);
-        }
     }
 
     private Response serveRequest(IHTTPSession session, String uri, Method method) {
-        if (Method.GET.equals(method))
+        if(Method.GET.equals(method))
             return handleGet(session, uri);
+
         return notFoundResponse();
     }
 
@@ -160,7 +184,8 @@ public class HttpServer extends NanoWSD {
     }
 
     private Response internalErrorResponse() {
-        return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Internal error");
+        return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT,
+                "Internal error");
     }
 
     private Response handleGet(IHTTPSession session, String uri) {
@@ -174,7 +199,8 @@ public class HttpServer extends NanoWSD {
     }
 
     private Response handleRootRequest(IHTTPSession session) {
-        String indexHtml = readFile();
+        String indexHtml = readFile(HTML_DIR + INDEX_HTML);
+
         return newFixedLengthResponse(Response.Status.OK, MIME_HTML, indexHtml);
     }
 
@@ -182,13 +208,42 @@ public class HttpServer extends NanoWSD {
         String type;
         try {
             type = json.getString(TYPE_PARAM);
-            Log.d(TAG, "收到:" + type);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
 
         switch (type) {
+            case TYPE_VALUE_MOUSE_DOWN:
+                httpServerInterface.onMouseDown(json);
+                break;
+            case TYPE_VALUE_MOUSE_MOVE:
+                httpServerInterface.onMouseMove(json);
+                break;
+            case TYPE_VALUE_MOUSE_UP:
+                httpServerInterface.onMouseUp(json);
+                break;
+            case TYPE_VALUE_MOUSE_ZOOM_IN:
+                httpServerInterface.onMouseZoomIn(json);
+                break;
+            case TYPE_VALUE_MOUSE_ZOOM_OUT:
+                httpServerInterface.onMouseZoomOut(json);
+                break;
+            case TYPE_VALUE_BUTTON_BACK:
+                httpServerInterface.onButtonBack();
+                break;
+            case TYPE_VALUE_BUTTON_HOME:
+                httpServerInterface.onButtonHome();
+                break;
+            case TYPE_VALUE_BUTTON_RECENT:
+                httpServerInterface.onButtonRecent();
+                break;
+            case TYPE_VALUE_BUTTON_POWER:
+                httpServerInterface.onButtonPower();
+                break;
+            case TYPE_VALUE_BUTTON_LOCK:
+                httpServerInterface.onButtonLock();
+                break;
             case TYPE_VALUE_JOIN:
                 httpServerInterface.onJoin(this);
                 break;
@@ -204,20 +259,23 @@ public class HttpServer extends NanoWSD {
         }
     }
 
-    private String readFile() {
+    private String readFile(String fileName) {
         InputStream fileStream;
-        StringBuilder string = new StringBuilder();
+        String string = "";
+
         try {
-            fileStream = context.getAssets().open("html/index.html");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
+            fileStream = context.getAssets().open(fileName);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fileStream,
+                    "UTF-8"));
+
             String line;
             while ((line = reader.readLine()) != null)
-                string.append(line);
+                string += line;
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return string.toString();
+        return string;
     }
 
     private Response handleFileRequest(IHTTPSession session, String uri) {

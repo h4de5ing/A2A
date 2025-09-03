@@ -10,18 +10,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/AServer" />
-            <option value="$PROJECT_DIR$/BClient" />
-            <option value="$PROJECT_DIR$/Simplesshd" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/scrcpy" />
-            <option value="$PROJECT_DIR$/screen" />
-            <option value="$PROJECT_DIR$/usbp2p" />
             <option value="$PROJECT_DIR$/web_screen" />
             <option value="$PROJECT_DIR$/webrtc_android" />
             <option value="$PROJECT_DIR$/webrtc_lib" />
             <option value="$PROJECT_DIR$/webrtc_web" />
-            <option value="$PROJECT_DIR$/wenxiaomao1023_scrcpy" />
           </set>
         </option>
       </GradleProjectSettings>
