@@ -309,7 +309,7 @@ public class Controller implements AsyncProcessor {
          *
          * Otherwise, Chrome does not work properly: <https://github.com/Genymobile/scrcpy/issues/3635>
          */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && source == InputDevice.SOURCE_MOUSE) {
+        if (source == InputDevice.SOURCE_MOUSE) {
             if (action == MotionEvent.ACTION_DOWN) {
                 if (actionButton == buttons) {
                     // First button pressed: ACTION_DOWN

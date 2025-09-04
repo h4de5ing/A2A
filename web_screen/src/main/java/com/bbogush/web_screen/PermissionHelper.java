@@ -14,11 +14,17 @@ public class PermissionHelper {
 
     public interface OnPermissionGrantedListener {
         void onAccessNetworkStatePermissionGranted(boolean isGranted);
+
         void onInternetPermissionGranted(boolean isGranted);
+
         void onReadExternalStoragePermissionGranted(boolean isGranted);
+
         void onWakeLockPermissionGranted(boolean isGranted);
+
         void onForegroundServicePermissionGranted(boolean isGranted);
+
         void onRecordAudioPermissionGranted(boolean isGranted);
+
         void onCameraPermissionGranted(boolean isGranted);
     }
 
@@ -47,22 +53,18 @@ public class PermissionHelper {
         }
 
         ActivityCompat.requestPermissions(activity, new String[]{
-                Manifest.permission.ACCESS_NETWORK_STATE }, PERM_ACCESS_NETWORK_STATE);
+                Manifest.permission.ACCESS_NETWORK_STATE}, PERM_ACCESS_NETWORK_STATE);
     }
 
     public void requestInternetPermission() {
-        if (onPermissionGrantedListener == null)
-            return;
-
+        if (onPermissionGrantedListener == null) return;
         if (ContextCompat.checkSelfPermission(activity.getApplicationContext(),
                 Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Internet permission granted");
             onPermissionGrantedListener.onInternetPermissionGranted(true);
             return;
         }
-
-        ActivityCompat.requestPermissions(activity, new String[]{ Manifest.permission.INTERNET },
-                PERM_INTERNET);
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.INTERNET}, PERM_INTERNET);
     }
 
     public void requestReadExternalStoragePermission() {
@@ -73,9 +75,7 @@ public class PermissionHelper {
             return;
         }
 
-        ActivityCompat.requestPermissions(activity,
-                new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
-                PERM_READ_EXTERNAL_STORAGE);
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERM_READ_EXTERNAL_STORAGE);
     }
 
     public void requestWakeLockPermission() {
@@ -85,10 +85,7 @@ public class PermissionHelper {
             onPermissionGrantedListener.onWakeLockPermissionGranted(true);
             return;
         }
-
-        ActivityCompat.requestPermissions(activity,
-                new String[]{ Manifest.permission.WAKE_LOCK },
-                PERM_WAKE_LOCK);
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WAKE_LOCK}, PERM_WAKE_LOCK);
     }
 
     public void requestForegroundServicePermission() {
@@ -100,9 +97,7 @@ public class PermissionHelper {
                 return;
             }
 
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{ Manifest.permission.FOREGROUND_SERVICE },
-                    PERM_FOREGROUND_SERVICE);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.FOREGROUND_SERVICE}, PERM_FOREGROUND_SERVICE);
         } else {
             onPermissionGrantedListener.onForegroundServicePermissionGranted(true);
         }
@@ -117,9 +112,7 @@ public class PermissionHelper {
                 return;
             }
 
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{ Manifest.permission.RECORD_AUDIO },
-                    PERM_RECORD_AUDIO);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO}, PERM_RECORD_AUDIO);
         } else {
             onPermissionGrantedListener.onRecordAudioPermissionGranted(true);
         }
@@ -133,17 +126,13 @@ public class PermissionHelper {
                 onPermissionGrantedListener.onCameraPermissionGranted(true);
                 return;
             }
-
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{ Manifest.permission.CAMERA },
-                    PERM_CAMERA);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, PERM_CAMERA);
         } else {
             onPermissionGrantedListener.onCameraPermissionGranted(true);
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case PERM_ACCESS_NETWORK_STATE:
                 if (grantResults.length > 0

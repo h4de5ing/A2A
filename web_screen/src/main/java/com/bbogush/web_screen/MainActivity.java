@@ -61,11 +61,8 @@ public class MainActivity extends AppCompatActivity {
             remoteControlEnable(isChecked);
         });
 
-        if (AppService.isServiceRunning())
-            setStartButton();
-
+        if (AppService.isServiceRunning()) setStartButton();
         initPermission();
-
         initUrl();
     }
 
@@ -84,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
             bindService();
             return;
         }
-
         permissionHelper.requestInternetPermission();
     }
 
