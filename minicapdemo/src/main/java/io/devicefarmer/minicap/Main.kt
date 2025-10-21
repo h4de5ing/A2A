@@ -40,7 +40,7 @@ class Main {
                     when (elem) {
                         "-s" -> p.screenshot(true)
                         "-i" -> p.displayInfo(true)
-                        "-h" -> showHelp().also { System.exit(0) }
+                        "-h" -> showHelp().also { exitProcess(0) }
                     }
                     Pair(p, elem)
                 } else {
@@ -91,7 +91,7 @@ class Main {
         }
 
         private fun showHelp() {
-            System.out.println(
+            println(
                 "Usage: %s [-h] [-n <name>]\n" +
                         "  -d <id>:       Display ID. (%d)\n" +
                         "  -n <name>:     Change the name of the abtract unix domain socket. (%s)\n" +

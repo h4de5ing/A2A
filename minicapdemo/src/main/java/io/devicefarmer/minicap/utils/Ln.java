@@ -2,7 +2,8 @@ package io.devicefarmer.minicap.utils;
 
 import android.util.Log;
 
-import com.android.settingc.BuildConfig;
+import com.android.minicapdemo.BuildConfig;
+
 
 /**
  * Log both to Android logger (so that logs are visible in "adb logcat") and standard output/error (so that they are visible in the terminal

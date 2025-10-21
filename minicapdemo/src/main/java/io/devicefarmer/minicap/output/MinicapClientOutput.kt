@@ -39,7 +39,7 @@ class MinicapClientOutput(
     /**
      * Sends the banner required at connection time
      */
-    fun sendBanner(screenSize: Size, targetSize: Size, rotation: Int ) {
+    fun sendBanner(screenSize: Size, targetSize: Size, rotation: Int) {
         val byteArray = ByteArray(BANNER_SIZE)
         ByteBuffer.wrap(byteArray).apply {
             order(ByteOrder.LITTLE_ENDIAN)

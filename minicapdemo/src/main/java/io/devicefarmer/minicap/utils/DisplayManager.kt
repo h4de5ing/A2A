@@ -29,14 +29,14 @@ class DisplayManager private constructor(private val manager: Any) {
     private fun parseDisplayFlags(text: String?): Int {
         val regex = Pattern.compile("FLAG_[A-Z_]+")
         var flags = 0
-        if (text == null) return flags
+        if (text == null) return 0
         val m = regex.matcher(text)
         while (m.find()) {
             val flagString = m.group()
             try {
                 val filed: Field = Display::class.java.getDeclaredField(flagString)
                 flags = flags or filed.getInt(null)
-            } catch (e: ReflectiveOperationException) {
+            } catch (_: ReflectiveOperationException) {
                 // Silently ignore, some flags reported by "dumpsys display" are @TestApi
             }
         }
