@@ -18,6 +18,7 @@ package io.devicefarmer.minicap.utils
 import android.graphics.Rect
 import android.os.IBinder
 import android.view.Surface
+import com.genymobile.scrcpy.Ln
 
 /**
  * Provide access to the SurfaceControl which is not part of the Android SDK using reflection.
@@ -25,6 +26,7 @@ import android.view.Surface
  * in use in minicap-shared library.
  */
 object SurfaceControl {
+
     private var clazz: Class<*>? = null
 
     init {

@@ -17,7 +17,7 @@ rootProject.name = "A2A"
 //include(":app")
 //include(":usbp2p")
 //include(":screen")
-include(":scrcpy")
+//include(":scrcpy")
 //include(":AServer")
 //include(":BClient")
 //include(":Simplesshd")

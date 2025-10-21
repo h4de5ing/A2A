@@ -10,21 +10,32 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.android.minicapdemo"
+        applicationId = "android.test.settings"//TODO 仅测试
         minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
-
+    signingConfigs {
+        create("release") {
+            storeFile = file("D:\\Android12SignerGUI\\SignFiles\\NewPublic\\platform.jks")
+            keyAlias = "android"
+            keyPassword = "android"
+            storePassword = "android"
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_22
+        targetCompatibility = JavaVersion.VERSION_22
     }
     buildFeatures {
         buildConfig = true

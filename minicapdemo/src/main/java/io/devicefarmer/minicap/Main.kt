@@ -83,8 +83,8 @@ class Main {
                     //the stf process reads this
                     System.err.println("PID: ${android.os.Process.myPid()}")
                     System.err.println("INFO: ${params.projection}")
-                    val server = SimpleServer(params.socket, provider)
-                    server.start()
+//                    val server = SimpleServer(params.socket, provider)
+//                    server.start()
                 }
             }
             Looper.loop()

@@ -11,7 +11,7 @@ import com.android.minicapdemo.BuildConfig;
  */
 public final class Ln {
 
-    private static final String TAG = "scrcpy";
+    private static final String TAG = "minicap";
     private static final String PREFIX = "[server] ";
 
     enum Level {

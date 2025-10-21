@@ -19,14 +19,17 @@ import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.media.Image
 import android.media.ImageReader
-import android.net.LocalSocket
 import android.util.Size
 import io.devicefarmer.minicap.SimpleServer
 import io.devicefarmer.minicap.output.DisplayOutput
 import io.devicefarmer.minicap.output.MinicapClientOutput
 import io.devicefarmer.minicap.utils.Ln
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import java.io.OutputStream
 import java.io.PrintStream
+import java.net.Socket
 import java.nio.ByteBuffer
 
 /**
@@ -68,7 +71,7 @@ abstract class BaseProvider(
         clientOutput = out
     }
 
-    override fun onConnection(socket: LocalSocket) {
+    override fun onConnection(socket: Socket) {
         clientOutput = MinicapClientOutput(socket).apply {
             sendBanner(getScreenSize(), getTargetSize(), rotation)
         }
@@ -82,7 +85,13 @@ abstract class BaseProvider(
             if (currentTime - previousTimeStamp > framePeriodMs) {
                 previousTimeStamp = currentTime
                 encode(image, quality, clientOutput.imageBuffer)
-                clientOutput.send()
+                MainScope().launch(Dispatchers.IO) {
+                    try {
+                        clientOutput.send()//TODO 需要在子线程中发送
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             } else {
                 Ln.d("skipping frame ($currentTime/$previousTimeStamp)")
             }

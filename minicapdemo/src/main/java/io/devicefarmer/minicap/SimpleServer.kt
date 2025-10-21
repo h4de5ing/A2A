@@ -15,25 +15,21 @@
 
 package io.devicefarmer.minicap
 
-import android.net.LocalServerSocket
-import android.net.LocalSocket
 import io.devicefarmer.minicap.utils.Ln
 import java.io.IOException
+import java.net.Socket
 
 /**
  * Minimalist "server" to bootstrap development
  */
-class SimpleServer(private val socket: String, private val listener: Listener) {
+class SimpleServer(private val socket: Socket, private val listener: Listener) {
     interface Listener {
-        fun onConnection(socket: LocalSocket)
+        fun onConnection(socket: Socket)
     }
 
     fun start() {
         try {
-            val serverSocket = LocalServerSocket(socket)
-            Ln.i("Listening on socket : $socket")
-            val clientSocket: LocalSocket = serverSocket.accept()
-            listener.onConnection(clientSocket)
+            listener.onConnection(socket)
         } catch (e: IOException) {
             Ln.e("error waiting connection", e)
         }

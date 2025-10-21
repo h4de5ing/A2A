@@ -15,8 +15,8 @@
 
 package io.devicefarmer.minicap.output
 
-import android.net.LocalSocket
 import android.util.Size
+import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -26,9 +26,7 @@ import java.nio.ByteOrder
  * Basically implements the "minicap" protocol
  */
 @ExperimentalUnsignedTypes
-class MinicapClientOutput(
-    private val socket: LocalSocket
-) :
+class MinicapClientOutput(private val socket: Socket) :
     DisplayOutput() {
     companion object {
         const val BANNER_VERSION = 1
@@ -70,9 +68,11 @@ class MinicapClientOutput(
             putInt(data.size)
             put(data)
         }
-        with(socket.outputStream) {
-            write(payload)
-            flush()
+        if (socket.keepAlive) {
+            with(socket.outputStream) {
+                write(payload)
+                flush()
+            }
         }
         imageBuffer.reset()
     }
