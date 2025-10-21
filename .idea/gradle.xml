@@ -12,10 +12,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/minicapdemo" />
             <option value="$PROJECT_DIR$/scrcpy" />
-            <option value="$PROJECT_DIR$/web_screen" />
-            <option value="$PROJECT_DIR$/webrtc_android" />
-            <option value="$PROJECT_DIR$/webrtc_lib" />
-            <option value="$PROJECT_DIR$/webrtc_web" />
           </set>
         </option>
       </GradleProjectSettings>
