@@ -10,15 +10,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/minicapdemo" />
             <option value="$PROJECT_DIR$/scrcpy" />
             <option value="$PROJECT_DIR$/web_screen" />
             <option value="$PROJECT_DIR$/webrtc_android" />
             <option value="$PROJECT_DIR$/webrtc_lib" />
             <option value="$PROJECT_DIR$/webrtc_web" />
-            <option value="$PROJECT_DIR$/../../../repository/SystemFunction/SystemFunction_src/Android12" />
-            <option value="$PROJECT_DIR$/../../../repository/SystemFunction/SystemFunction_src/Android13" />
-            <option value="$PROJECT_DIR$/../../../repository/SystemFunction/SystemFunction_src/Android14" />
-            <option value="$PROJECT_DIR$/../../../repository/SystemFunction/SystemFunction_src/SystemLib" />
           </set>
         </option>
       </GradleProjectSettings>

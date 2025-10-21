@@ -63,7 +63,7 @@ public final class SurfaceControl {
     }
 
     public static IBinder createDisplay(String name, boolean secure) {
-        try {
+        try {//TODO 这个项目有个bug，兼容Android15会提示接口找不到的崩溃，解决方案使用【minicap】
             return (IBinder) CLASS.getMethod("createDisplay", String.class, boolean.class).invoke(null, name, secure);
         } catch (Exception e) {
             throw new AssertionError(e);

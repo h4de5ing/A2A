@@ -18,8 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.android.systemlib.InputLibKt;
-import com.bbogush.web_screen.scrcpy.Controller;
-import com.bbogush.web_screen.scrcpy.Position;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -99,14 +97,9 @@ public class AppService extends Service {
         return iBinder;
     }
 
-    private Controller controller;
 
     public boolean serverStart(Intent intent, int port, boolean isAccessibilityServiceEnabled, Context context) {
-        if (controller == null) {
-            controller = new Controller();
-        }
-        if (!(isWebServerRunning = startHttpServer(port)))
-            return false;
+        if (!(isWebServerRunning = startHttpServer(port))) return false;
         webRtcManager = new WebRtcManager(intent, context, httpServer);
         accessibilityServiceSet(context, isAccessibilityServiceEnabled);
         return isWebServerRunning;
@@ -167,7 +160,7 @@ public class AppService extends Service {
         public void onMouseDown(JSONObject message) {
             int[] coordinates = getCoordinates(message);
             if (coordinates != null) {
-                InputLibKt.injectMotionEvent(MotionEvent.ACTION_DOWN,coordinates[0], coordinates[1]);
+                InputLibKt.injectMotionEvent(MotionEvent.ACTION_DOWN, coordinates[0], coordinates[1]);
 //                controller.injectTouch(MotionEvent.ACTION_DOWN, Controller.POINTER_ID_MOUSE, new Position(coordinates[0], coordinates[1], 1200, 1920), 1f, MotionEvent.BUTTON_PRIMARY, MotionEvent.BUTTON_PRIMARY);
             }
         }
@@ -176,7 +169,7 @@ public class AppService extends Service {
         public void onMouseMove(JSONObject message) {
             int[] coordinates = getCoordinates(message);
             if (coordinates != null) {
-                InputLibKt.injectMotionEvent(MotionEvent.ACTION_MOVE,coordinates[0], coordinates[1]);
+                InputLibKt.injectMotionEvent(MotionEvent.ACTION_MOVE, coordinates[0], coordinates[1]);
 //                controller.injectTouch(MotionEvent.ACTION_MOVE, Controller.POINTER_ID_MOUSE, new Position(coordinates[0], coordinates[1], 1200, 1920), 1f, 0, MotionEvent.BUTTON_PRIMARY);
             }
         }
@@ -185,7 +178,7 @@ public class AppService extends Service {
         public void onMouseUp(JSONObject message) {
             int[] coordinates = getCoordinates(message);
             if (coordinates != null) {
-                InputLibKt.injectMotionEvent(MotionEvent.ACTION_UP,coordinates[0], coordinates[1]);
+                InputLibKt.injectMotionEvent(MotionEvent.ACTION_UP, coordinates[0], coordinates[1]);
 //                controller.injectTouch(MotionEvent.ACTION_UP, Controller.POINTER_ID_MOUSE, new Position(coordinates[0], coordinates[1], 1200, 1920), 0f, 0, 0);
             }
         }
